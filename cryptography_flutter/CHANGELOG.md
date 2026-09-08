@@ -1,3 +1,9 @@
+## 2.4.0
+* Migrates Android plugin build to AGP 9 / built-in Kotlin (no longer applies `kotlin-android`).
+* Example and integration test enable `android.builtInKotlin=true` (AGP 9.4.0, Kotlin 2.4.10).
+* Updates the minimum supported SDK version to Flutter 3.44 / Dart 3.12.
+* Enables Swift Package Manager config; wires privacy manifests for iOS / macOS.
+
 ## 2.3.4
 * Bug fixes.
 
