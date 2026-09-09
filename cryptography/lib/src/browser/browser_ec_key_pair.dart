@@ -277,7 +277,7 @@ class BrowserEcKeyPair extends KeyPair implements EcKeyPair {
       final jwk = await web_crypto.exportKeyWhenJwk(
         jsKey.privateKey,
       );
-      return fromParameters(
+      return await fromParameters(
         keyPairType: keyPairType,
         d: web_crypto.base64UrlDecode(jwk.d!.toDart),
         x: web_crypto.base64UrlDecode(jwk.x!.toDart),

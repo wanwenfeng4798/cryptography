@@ -108,7 +108,7 @@ class BrowserEd25519 extends Ed25519 {
         true.toJS,
         ['verify'.toJS].toJS,
       );
-      return web_crypto.verify(
+      return await web_crypto.verify(
         _jsAlgorithm,
         jsPublicKey,
         web_crypto.jsUint8ListFrom(signature.bytes),
