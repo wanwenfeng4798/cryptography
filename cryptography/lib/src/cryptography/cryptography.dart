@@ -26,7 +26,7 @@ import 'package:cryptography/dart.dart';
 /// ## Implementations
 ///   * [DartCryptography]
 ///   * [BrowserCryptography]
-///   * [FlutterCryptography](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterCryptography-class.html) (_package:cryptography_flutter_)
+///   * [FlutterCryptography](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterCryptography-class.html) (_package:cryptography_flutter_pro_)
 ///
 /// ## Setting implementation
 ///

@@ -17,9 +17,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../cryptography_flutter.dart';
+import '../cryptography_flutter_pro.dart';
 
-const MethodChannel _methodChannel = MethodChannel('cryptography_flutter');
+const MethodChannel _methodChannel = MethodChannel('cryptography_flutter_pro');
 
 @internal
 bool get isAndroid => defaultTargetPlatform == TargetPlatform.android;
@@ -62,7 +62,7 @@ Future<Map> invokeMethod(String name, Map<String, Object?> arguments,
   } on PlatformException catch (error) {
     if (error.code == 'UNSUPPORTED_ALGORITHM') {
       throw UnsupportedError(
-        'cryptography_flutter caught error: ${error.message ?? 'Algorithm "$name" is not supported on this platform.'}',
+        'cryptography_flutter_pro caught error: ${error.message ?? 'Algorithm "$name" is not supported on this platform.'}',
       );
     }
     rethrow;

@@ -18,7 +18,7 @@ import UIKit
 
 public class CryptographyFlutterPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "cryptography_flutter", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: "cryptography_flutter_pro", binaryMessenger: registrar.messenger())
         let instance = CryptographyFlutterPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }

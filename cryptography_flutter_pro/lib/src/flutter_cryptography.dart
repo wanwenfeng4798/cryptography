@@ -16,16 +16,16 @@ import 'dart:math';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
-import 'package:cryptography_flutter/src/flutter/flutter_hmac.dart';
+import 'package:cryptography_flutter_pro/src/flutter/flutter_hmac.dart';
 import 'package:flutter/foundation.dart';
 
-import '../cryptography_flutter.dart';
+import '../cryptography_flutter_pro.dart';
 
 /// An implementation [Cryptography] that uses native operating system APIs.
 ///
 /// ## Getting started
 /// ```
-/// import 'package:cryptography_flutter/cryptography_flutter.dart' show FlutterCryptography;
+/// import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart' show FlutterCryptography;
 ///
 /// void main() {
 ///   // Enables use of Flutter cryptography.

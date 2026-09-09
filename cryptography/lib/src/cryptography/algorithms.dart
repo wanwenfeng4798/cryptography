@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 /// On other platforms, [DartAesCbc] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -164,7 +164,7 @@ abstract class AesCbc extends Cipher {
 /// On other platforms, [DartAesCtr] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -316,7 +316,7 @@ abstract class AesCtr extends StreamingCipher {
 /// On other platforms, [DartAesGcm] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -825,7 +825,7 @@ abstract class Blake2s extends HashAlgorithm implements MacAlgorithm {
 /// By default, [DartChacha20] will be used. It is a pure Dart implementation.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -886,7 +886,7 @@ abstract class Chacha20 extends StreamingCipher {
   /// on _ChaCha20_.
   ///
   /// If you use Flutter, you can enable
-  /// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+  /// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
   /// It can improve performance in many cases.
   ///
   /// ## Things to know
@@ -970,7 +970,7 @@ abstract class Chacha20 extends StreamingCipher {
 /// On other platforms, [DartEcdh] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -1051,7 +1051,7 @@ abstract class Ecdh extends KeyExchangeAlgorithm {
 /// On other platforms, [DartEcdsa] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -1136,7 +1136,7 @@ abstract class Ecdsa extends SignatureAlgorithm {
 ///
 /// By default, [DartEd25519] will be used.
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -1257,7 +1257,7 @@ abstract class Hchacha20 {
 /// [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API),
 /// which has very good HKDF performance.
 ///
-/// Flutter developers should add [cryptography_flutter](https://pub.dev/packages/cryptography_flutter),
+/// Flutter developers should add [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro),
 /// as a dependency for the best possible HKDF performance.
 ///
 /// ## Example
@@ -1320,7 +1320,7 @@ abstract class Hkdf extends KdfAlgorithm {
 /// [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API),
 /// which has very good HMAC performance.
 ///
-/// Flutter developers should add [cryptography_flutter](https://pub.dev/packages/cryptography_flutter),
+/// Flutter developers should add [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro),
 /// as a dependency for the best possible HMAC performance.
 ///
 /// ## Things to know
@@ -1458,7 +1458,7 @@ abstract class Hmac extends MacAlgorithm {
 /// [Web Crypto API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API),
 /// which has very good PBKDF2 performance.
 ///
-/// Flutter developers should add [cryptography_flutter](https://pub.dev/packages/cryptography_flutter),
+/// Flutter developers should add [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro),
 /// as a dependency for the best possible PBKDF2 performance.
 ///
 /// ## Things to know
@@ -2160,7 +2160,7 @@ abstract class StreamingCipher extends Cipher {
 ///
 /// By default, [DartX25519] will be used.
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know
@@ -2233,7 +2233,7 @@ abstract class X25519 extends KeyExchangeAlgorithm {
 /// By default, [DartXchacha20] will be used.
 ///
 /// If you use Flutter, you can enable
-/// [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
+/// [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
 /// It can improve performance in many cases.
 ///
 /// ## Things to know

@@ -17,7 +17,7 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_internal.dart';
 
 /// [AesGcm] that uses platform APIs in Android, iOS, and Mac OS X.

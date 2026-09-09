@@ -15,7 +15,7 @@
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/services.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
 
@@ -186,7 +186,7 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
       final error = result['error'] as String?;
       if (error != null) {
         throw StateError(
-          '"package:cryptography_flutter": $runtimeType.sign failed: $error',
+          '"package:cryptography_flutter_pro": $runtimeType.sign failed: $error',
         );
       }
       final signature = result['signature'] as Uint8List;
@@ -245,7 +245,7 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
       final error = result['error'];
       if (error != null) {
         throw StateError(
-          '"package:cryptography_flutter": $runtimeType.verify failed: $error',
+          '"package:cryptography_flutter_pro": $runtimeType.verify failed: $error',
         );
       }
       return result['result'] as bool;

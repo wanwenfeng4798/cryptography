@@ -16,7 +16,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/helpers.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
 

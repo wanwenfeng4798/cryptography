@@ -16,7 +16,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
 
@@ -192,7 +192,7 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
       final error = result['error'];
       if (error != null) {
         throw StateError(
-          '"package:cryptography_flutter": invalid output from plugin: $error',
+          '"package:cryptography_flutter_pro": invalid output from plugin: $error',
         );
       }
       var bytes = result['bytes'] as Uint8List;

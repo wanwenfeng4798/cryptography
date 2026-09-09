@@ -16,7 +16,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/helpers.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
 
@@ -82,7 +82,7 @@ class FlutterEd25519 extends DelegatingEd25519
           );
           final error = result['error'];
           if (error is String) {
-            throw StateError('error in "package:cryptography_flutter": $error');
+            throw StateError('error in "package:cryptography_flutter_pro": $error');
           }
           final bytes = result['signature'] as Uint8List;
           return Signature(
@@ -113,7 +113,7 @@ class FlutterEd25519 extends DelegatingEd25519
         );
         final error = result['error'];
         if (error is String) {
-          throw StateError('error in "package:cryptography_flutter": $error');
+          throw StateError('error in "package:cryptography_flutter_pro": $error');
         }
         return result['ok'] as bool;
       }

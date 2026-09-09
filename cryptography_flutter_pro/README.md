@@ -1,5 +1,5 @@
-[![Pub Package](https://img.shields.io/pub/v/cryptography_flutter.svg)](https://pub.dev/packages/cryptography_flutter)
-[![Github Actions CI](https://github.com/dint-dev/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/cryptography/actions)
+[![Pub Package](https://img.shields.io/pub/v/cryptography_flutter_pro.svg)](https://pub.dev/packages/cryptography_flutter_pro)
+[![Github Actions CI](https://github.com/wanwenfeng4798/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/wanwenfeng4798/cryptography/actions)
 
 # Overview
 
@@ -31,14 +31,14 @@ The package is tested with [cryptography_test](https://pub.dev/packages/cryptogr
 This package contains two kinds of classes:
 
 * Classes such
-  as [FlutterChacha20](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterChacha20-class.html)
+  as [FlutterChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterChacha20-class.html)
   use operating system APIs in Android / iOS / Mac OS X. If the operating system does not support
   the algorithm, the background implementation (such as `BackgroundChacha20`) or a pure Dart
   implementation (such
   as [DartChacha20](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartChacha20-class.html))
   when available.
 * Classes such
-  as [BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundChacha20-class.html)
+  as [BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundChacha20-class.html)
   move lengthy computations to a background isolate by using
   [compute](https://api.flutter.dev/flutter/foundation/compute-constant.html) function in Flutter
   SDK.
@@ -57,7 +57,7 @@ In _pubspec.yaml_:
 ```yaml
 dependencies:
   cryptography: ^2.9.0
-  cryptography_flutter: ^2.3.4
+  cryptography_flutter_pro: ^0.1.0
 ```
 
 That's it!
@@ -69,59 +69,59 @@ at [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography).
 
 ## AES-GCM
 
-[FlutterAesGcm](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterAesGcm-class.html)
+[FlutterAesGcm](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterAesGcm-class.html)
 is used in Android, iOS, and Mac OS X.
 Our benchmarks have shown up to ~50 times better performance than
 [DartAesGcm](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartAesGcm-class.html)
 (the pure Dart implementation).
 
-[BackgroundAesGcm](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundAesGcm-class.html)
+[BackgroundAesGcm](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundAesGcm-class.html)
 is used in Windows and Linux for inputs that are large enough.
 
 ## ChaCha20-Poly1305-AEAD
 
-[FlutterChacha20](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterChacha20-class.html)
+[FlutterChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterChacha20-class.html)
 is available for Android and Apple operating systems.
 Our benchmarks have shown up to ~50 times better performance than
 [DartChacha20](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartChacha20-class.html)
 (the pure Dart implementation).
 
-[BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundChacha20-class.html)
+[BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundChacha20-class.html)
 is used in Windows and Linux for inputs that are large enough.
 
 ## NIST ECDH / ECDSA
 
-[FlutterEcdh](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterEcdh-class.html)
-and [FlutterEcdsa](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterEcdsa-class.html)
+[FlutterEcdh](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterEcdh-class.html)
+and [FlutterEcdsa](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterEcdsa-class.html)
 are available for Apple operating systems.
 
 ## Ed25519
 
-[FlutterEd25519](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterEd25519-class.html)
-and [BackgroundEd25519](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundEd25519-class.html)
+[FlutterEd25519](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterEd25519-class.html)
+and [BackgroundEd25519](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundEd25519-class.html)
 are available for Apple operating systems.
 
 ## X25519
 
-[FlutterX25519](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterX25519-class.html)
-and [BackgroundX25519](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundX25519-class.html)
+[FlutterX25519](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterX25519-class.html)
+and [BackgroundX25519](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundX25519-class.html)
 are available for Apple operating systems.
 
 ## HMAC
 
-[FlutterHmac](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterHmac-class.html)
+[FlutterHmac](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterHmac-class.html)
 is available for Android..
 
 ## PBKDF2
 
-[FlutterPbkdf2](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterPbkdf2-class.html)
+[FlutterPbkdf2](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterPbkdf2-class.html)
 is available for Android.
-[BackgroundPbkdf2](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/BackgroundPbkdf2-class.html)
+[BackgroundPbkdf2](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundPbkdf2-class.html)
 is used in Apple operating systems, Windows and Linux.
 
 ## Links
 
-* [Github project](https://github.com/dint-dev/cryptography)
-* [Issue tracker](https://github.com/dint-dev/cryptography/issues)
-* [Pub package](https://pub.dev/packages/cryptography_flutter)
-* [API reference](https://pub.dev/documentation/cryptography_flutter/latest/)
+* [Github project](https://github.com/wanwenfeng4798/cryptography)
+* [Issue tracker](https://github.com/wanwenfeng4798/cryptography/issues)
+* [Pub package](https://pub.dev/packages/cryptography_flutter_pro)
+* [API reference](https://pub.dev/documentation/cryptography_flutter_pro/latest/)

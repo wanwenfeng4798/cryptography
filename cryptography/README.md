@@ -1,5 +1,5 @@
 [![Pub Package](https://img.shields.io/pub/v/cryptography.svg)](https://pub.dev/packages/cryptography)
-[![Github Actions CI](https://github.com/dint-dev/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/cryptography/actions)
+[![Github Actions CI](https://github.com/wanwenfeng4798/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/wanwenfeng4798/cryptography/actions)
 
 # Overview
 
@@ -32,15 +32,15 @@ Any feedback, issue reports, or pull requests are appreciated!
 
 ## Links
 
-* [Github project](https://github.com/dint-dev/cryptography)
-* [Issue tracker](https://github.com/dint-dev/cryptography/issues)
+* [Github project](https://github.com/wanwenfeng4798/cryptography)
+* [Issue tracker](https://github.com/wanwenfeng4798/cryptography/issues)
 * [Pub package](https://pub.dev/packages/cryptography)
 * [API reference](https://pub.dev/documentation/cryptography/latest/)
 
 # Getting started
 
 If you use Flutter, it's recommended (but not necessarily) that you also import our sibling package
-[cryptography_flutter](https://pub.dev/packages/cryptography_flutter), which delegates calls to
+[cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro), which delegates calls to
 Android / iOS / Mac OS X operating system APIs whenever possible.
 
 In _pubspec.yaml_:
@@ -49,17 +49,17 @@ dependencies:
   cryptography: ^2.9.0
   
   # If you are writing a Flutter app/package, also add this:
-  cryptography_flutter: ^2.3.4
+  cryptography_flutter_pro: ^0.1.0
 ```
 
 You are ready to go!
 
 # Issues and discussions
 
-Please report bugs at [github.com/dint-dev/cryptography/issues](https://github.com/dint-dev/cryptography/issues).
+Please report bugs at [github.com/wanwenfeng4798/cryptography/issues](https://github.com/wanwenfeng4798/cryptography/issues).
 
 Having questions? Feel free to use our Github Discussions at
-[github.com/dint-dev/cryptography/discussions](https://github.com/dint-dev/cryptography/discussions).
+[github.com/wanwenfeng4798/cryptography/discussions](https://github.com/wanwenfeng4798/cryptography/discussions).
 
 
 # Some things to know
@@ -255,10 +255,10 @@ We wrote the following three implementations of `Cryptography`:
       available.
     * See the [class documentation](https://pub.dev/documentation/cryptography/latest/cryptography/BrowserCryptography-class.html)
       for list algorithms supported by it.
-* [FlutterCryptography](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterCryptography-class.html)
+* [FlutterCryptography](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterCryptography-class.html)
     * Makes cryptographic algorithms up to 100 times faster in Android, iOS, and Mac OS X.
-    * Available in the package [cryptography_flutter](https://pub.dev/packages/cryptography_flutter).
-    * See the [class documentation](https://pub.dev/documentation/cryptography_flutter/latest/cryptography_flutter/FlutterCryptography-class.html)
+    * Available in the package [cryptography_flutter_pro](https://pub.dev/packages/cryptography_flutter_pro).
+    * See the [class documentation](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterCryptography-class.html)
       for list algorithms supported by it.
 
 ## Deterministic behavior in tests

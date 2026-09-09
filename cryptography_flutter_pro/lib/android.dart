@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/services.dart';
 
-const MethodChannel _methodChannel = MethodChannel('cryptography_flutter');
+const MethodChannel _methodChannel = MethodChannel('cryptography_flutter_pro');
 
 /// Java cryptography provider in Android.
 class AndroidCryptoProvider {

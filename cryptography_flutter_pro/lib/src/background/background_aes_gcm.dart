@@ -18,7 +18,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 
 /// [AesGcm] that's optimized to use [compute].
 class BackgroundAesGcm extends AesGcm with BackgroundCipherMixin {

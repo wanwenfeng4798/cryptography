@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import 'package:cryptography/cryptography.dart';
-import 'package:cryptography_flutter/cryptography_flutter.dart';
+import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 import 'package:cryptography_test/algorithms/pbkdf2.dart' as shared;
 import 'package:flutter_test/flutter_test.dart';
 

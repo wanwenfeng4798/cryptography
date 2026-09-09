@@ -129,8 +129,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - cryptography_flutter
-          - cryptography_flutter/example
+          - cryptography_flutter_pro
+          - cryptography_flutter_pro/example
           - cryptography_flutter_integration_test
         sdk:
           # The oldest supported Dart SDK at the moment.
@@ -172,7 +172,7 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - cryptography_flutter
+          - cryptography_flutter_pro
     runs-on: ubuntu-latest
     steps:
       - name: Install Flutter

@@ -1,5 +1,5 @@
 [![Pub Package](https://img.shields.io/pub/v/cryptography.svg)](https://pub.dev/packages/cryptography)
-[![Github Actions CI](https://github.com/dint-dev/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/dint-dev/cryptography/actions?query=workflow%3A%22Dart+CI%22)
+[![Github Actions CI](https://github.com/wanwenfeng4798/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/wanwenfeng4798/cryptography/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
 
@@ -13,12 +13,12 @@ Maintained by [terrier989](https://github.com/terrier989). Licensed under the [A
     * Cryptography API for Dart / Flutter.
     * Contains cryptographic algorithm implementations written in pure Dart.
     * Contains cryptographic algorithm implementations that use Web Cryptography API in browsers.
-  * [cryptography_flutter](cryptography_flutter)
+  * [cryptography_flutter_pro](cryptography_flutter_pro)
     * Contains cryptographic algorithm implementations that use operating system APIs in Android
       and Apple operating systems (iOS, Mac OS X, etc.).
   * [cryptography_flutter_integration_test](cryptography_flutter_integration_test)
-    * Integration test project for "cryptography_flutter".
-  * [cryptography_test](cryptography_flutter)
+    * Integration test project for "cryptography_flutter_pro".
+  * [cryptography_test](cryptography_flutter_pro)
     * Cross-platform tests. Note that "cryptography" and "cryptography_flutter_integration_test"
       contain more tests than just these.
   * [jwk](jwk)
@@ -26,7 +26,7 @@ Maintained by [terrier989](https://github.com/terrier989). Licensed under the [A
 
 ## Contributing
 Please share feedback / issue reports in the
-[issue tracker](https://github.com/dint-dev/cryptography/issues).
+[issue tracker](https://github.com/wanwenfeng4798/cryptography/issues).
 
 Pull requests are welcome.
 

@@ -17,7 +17,7 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 import '../_internal.dart';
 
 /// [Chacha20] that uses platform APIs in Android, iOS, and Mac OS X.

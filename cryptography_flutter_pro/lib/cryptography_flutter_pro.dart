@@ -16,9 +16,9 @@
 ///
 /// See [FlutterCryptography] for usage instructions.
 // ignore: unnecessary_library_name
-library cryptography_flutter;
+library cryptography_flutter_pro;
 
-import 'package:cryptography_flutter/cryptography_flutter.dart';
+import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 
 export 'src/background/background_aes_gcm.dart';
 export 'src/background/background_chacha20.dart';

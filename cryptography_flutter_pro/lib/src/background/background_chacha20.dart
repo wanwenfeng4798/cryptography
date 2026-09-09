@@ -18,7 +18,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cryptography/dart.dart';
 import 'package:flutter/foundation.dart';
 
-import '../../cryptography_flutter.dart';
+import '../../cryptography_flutter_pro.dart';
 
 /// [Chacha20.poly1305Aead] that's optimized to use [compute].
 class BackgroundChacha extends Chacha20 with BackgroundCipherMixin {

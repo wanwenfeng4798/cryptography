@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "dev.dint.cryptography_flutter_example"
+    namespace = "dev.dint.cryptography_flutter_pro_example"
     compileSdk = 37
     ndkVersion = "30.0.16138531"
 
@@ -25,7 +25,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "dev.dint.cryptography_flutter_example"
+        applicationId = "dev.dint.cryptography_flutter_pro_example"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

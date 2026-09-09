@@ -41,7 +41,7 @@
 * Some small API refactoring and new class members that don't really affect the publicly visible
   API. We plan to address most API design issues (some discussed in the issue tracker) in the next
   major version (3.x).
-* Adds support for seck256k1 key type ([#135](https://github.com/dint-dev/cryptography/pull/135)).
+* Adds support for seck256k1 key type ([#135](https://github.com/wanwenfeng4798/cryptography/pull/135)).
 
 ## 2.3.0
   * Fixes some small issues.
@@ -143,7 +143,7 @@
 
 ## 1.4.0
 
-* Adds support for _cryptography_flutter_, which uses operating system implementations.
+* Adds support for _cryptography_flutter_pro_, which uses operating system implementations.
 
 ## 1.3.0
 

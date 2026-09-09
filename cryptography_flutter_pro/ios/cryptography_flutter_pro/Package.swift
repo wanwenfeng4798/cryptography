@@ -4,17 +4,17 @@
 import PackageDescription
 
 let package = Package(
-    name: "cryptography_flutter",
+    name: "cryptography_flutter_pro",
     platforms: [
         .iOS("13.0")
     ],
     products: [
-        .library(name: "cryptography-flutter", targets: ["cryptography_flutter"])
+        .library(name: "cryptography-flutter-pro", targets: ["cryptography_flutter_pro"])
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "cryptography_flutter",
+            name: "cryptography_flutter_pro",
             dependencies: [],
             resources: [
                 .process("PrivacyInfo.xcprivacy"),

@@ -1,1 +1,1 @@
-rootProject.name = "cryptography_flutter"
+rootProject.name = "cryptography_flutter_pro"

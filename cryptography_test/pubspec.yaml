@@ -1,6 +1,6 @@
 name: cryptography_test
 version: 0.1.0
-homepage: https://github.com/dint-dev/cryptography
+homepage: https://github.com/wanwenfeng4798/cryptography
 description: A package for testing and benchmarking cryptographic algorithm implementations that
   implement "package:cryptography" interfaces.
 
@@ -22,7 +22,7 @@ dependencies:
   typed_data: ^1.3.0
 
   #
-  # Packages by github.com/dint-dev:
+  # Packages by github.com/wanwenfeng4798:
   #
   cryptography: ^2.8.0
 

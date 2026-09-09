@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package dev.dint.cryptography_flutter
+package dev.dint.cryptography_flutter_pro
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -33,7 +33,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private lateinit var channel: MethodChannel
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cryptography_flutter")
+        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "cryptography_flutter_pro")
         channel.setMethodCallHandler(this)
     }
 
@@ -139,7 +139,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         if (androidAlgo == null || macLength == null) {
             result.error(
                 "UNSUPPORTED_ALGORITHM",
-                "cryptography_flutter does not support algorithm ${dartAlgo} in Android.",
+                "cryptography_flutter_pro does not support algorithm ${dartAlgo} in Android.",
                 null
             )
             return
@@ -213,7 +213,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         if (androidAlgo == null || macLength == null) {
             result.error(
                 "UNSUPPORTED_ALGORITHM",
-                "cryptography_flutter does not support algorithm ${dartAlgo} in Android.",
+                "cryptography_flutter_pro does not support algorithm ${dartAlgo} in Android.",
                 null
             )
             return
