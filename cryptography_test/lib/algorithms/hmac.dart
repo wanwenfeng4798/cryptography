@@ -17,8 +17,8 @@ import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart' as crypto;
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/helpers.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/helpers.dart';
 import 'package:test/test.dart';
 
 import '../hex.dart';
@@ -49,142 +49,144 @@ void _testHmac(Hmac hmac) {
     expect(() => sink.addSlice([1], 0, 1, false), throwsStateError);
   });
 
-  test('Hmac.sha256().calculateMac(...): different secretKey and data lengths',
-      () async {
-    final buffer = Uint8List(129);
-    for (var i = 0; i < buffer.length; i++) {
-      buffer[i] = i;
-    }
-
-    for (var n = 0; n < buffer.length; n++) {
-      final data = buffer.buffer.asUint8List(0, n);
-      final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
-
-      for (var i = 0; i < data.length; i++) {
-        data[i] = 0xFF & i;
+  test(
+    'Hmac.sha256().calculateMac(...): different secretKey and data lengths',
+    () async {
+      final buffer = Uint8List(129);
+      for (var i = 0; i < buffer.length; i++) {
+        buffer[i] = i;
       }
 
-      // ignore: unused_local_variable
-      final mac = await Hmac.sha256().calculateMac(
-        data,
-        secretKey: secretKey,
-        nonce: const <int>[],
-      );
+      for (var n = 0; n < buffer.length; n++) {
+        final data = buffer.buffer.asUint8List(0, n);
+        final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
 
-      // // Use 'package:crypto' for calculating the correct answer
-      final secretKeyData = await secretKey.extract();
-      final expectedBytes = crypto.Hmac(
-        crypto.sha256,
-        secretKeyData.bytes,
-      ).convert(data).bytes;
-      expect(
-        hexFromBytes(mac.bytes),
-        hexFromBytes(expectedBytes),
-        reason: 'length: $n',
-      );
-    }
-  });
+        for (var i = 0; i < data.length; i++) {
+          data[i] = 0xFF & i;
+        }
 
-  test('Hmac.sha512().calculateMac(...): different secretKey and data lengths',
-      () async {
-    final buffer = Uint8List(129);
-    for (var i = 0; i < buffer.length; i++) {
-      buffer[i] = i;
-    }
-    for (var n = 0; n < buffer.length; n++) {
-      final data = buffer.buffer.asUint8List(0, n);
-      final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
+        // ignore: unused_local_variable
+        final mac = await Hmac.sha256().calculateMac(
+          data,
+          secretKey: secretKey,
+          nonce: const <int>[],
+        );
 
-      // ignore: unused_local_variable
-      final mac = await Hmac.sha512().calculateMac(
-        data,
-        secretKey: secretKey,
-        nonce: const <int>[],
-      );
-
-      // // Use 'package:crypto' for calculating the correct answer
-      final expectedBytes = crypto.Hmac(
-        crypto.sha512,
-        secretKey.bytes,
-      ).convert(data).bytes;
-      expect(
-        hexFromBytes(mac.bytes),
-        hexFromBytes(expectedBytes),
-        reason: 'length: $n',
-      );
-    }
-  });
+        // // Use 'package:crypto' for calculating the correct answer
+        final secretKeyData = await secretKey.extract();
+        final expectedBytes = crypto.Hmac(
+          crypto.sha256,
+          secretKeyData.bytes,
+        ).convert(data).bytes;
+        expect(
+          hexFromBytes(mac.bytes),
+          hexFromBytes(expectedBytes),
+          reason: 'length: $n',
+        );
+      }
+    },
+  );
 
   test(
-      'Hmac.sha512(), addSlice(), addSlice(): different secretKey and data lengths',
-      () async {
-    final buffer = Uint8List(129);
-    for (var i = 0; i < buffer.length; i++) {
-      buffer[i] = i;
-    }
-    for (var n = 0; n < buffer.length; n++) {
-      final data = buffer.buffer.asUint8List(0, n);
-      final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
-      for (var i = 0; i < data.length; i++) {
-        data[i] = 0xFF & i;
+    'Hmac.sha512().calculateMac(...): different secretKey and data lengths',
+    () async {
+      final buffer = Uint8List(129);
+      for (var i = 0; i < buffer.length; i++) {
+        buffer[i] = i;
       }
+      for (var n = 0; n < buffer.length; n++) {
+        final data = buffer.buffer.asUint8List(0, n);
+        final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
 
-      // ignore: unused_local_variable
-      final sink = await Hmac.sha512().newMacSink(
-        secretKey: secretKey,
-      );
-      sink.addSlice(data, 0, data.length ~/ 2, false);
-      sink.addSlice(data, data.length ~/ 2, data.length, true);
-      final mac = await sink.mac();
+        // ignore: unused_local_variable
+        final mac = await Hmac.sha512().calculateMac(
+          data,
+          secretKey: secretKey,
+          nonce: const <int>[],
+        );
 
-      // // Use 'package:crypto' for calculating the correct answer
-      final expectedBytes = crypto.Hmac(
-        crypto.sha512,
-        secretKey.bytes,
-      ).convert(data).bytes;
-      expect(
-        hexFromBytes(mac.bytes),
-        hexFromBytes(expectedBytes),
-        reason: 'length: $n',
-      );
-    }
-  });
+        // // Use 'package:crypto' for calculating the correct answer
+        final expectedBytes = crypto.Hmac(
+          crypto.sha512,
+          secretKey.bytes,
+        ).convert(data).bytes;
+        expect(
+          hexFromBytes(mac.bytes),
+          hexFromBytes(expectedBytes),
+          reason: 'length: $n',
+        );
+      }
+    },
+  );
 
   test(
-      'Hmac.sha512(), add(), add(), close(): different secretKey and data lengths',
-      () async {
-    final buffer = Uint8List(129);
-    for (var i = 0; i < buffer.length; i++) {
-      buffer[i] = i;
-    }
-    for (var n = 0; n < buffer.length; n++) {
-      final data = buffer.buffer.asUint8List(0, n);
-      final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
-      for (var i = 0; i < data.length; i++) {
-        data[i] = 0xFF & i;
+    'Hmac.sha512(), addSlice(), addSlice(): different secretKey and data lengths',
+    () async {
+      final buffer = Uint8List(129);
+      for (var i = 0; i < buffer.length; i++) {
+        buffer[i] = i;
       }
+      for (var n = 0; n < buffer.length; n++) {
+        final data = buffer.buffer.asUint8List(0, n);
+        final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
+        for (var i = 0; i < data.length; i++) {
+          data[i] = 0xFF & i;
+        }
 
-      // ignore: unused_local_variable
-      final sink = await Hmac.sha512().newMacSink(
-        secretKey: secretKey,
-      );
-      sink.add(data.sublist(0, data.length ~/ 2));
-      sink.add(data.sublist(data.length ~/ 2, data.length));
-      sink.close();
-      final mac = await sink.mac();
+        // ignore: unused_local_variable
+        final sink = await Hmac.sha512().newMacSink(secretKey: secretKey);
+        sink.addSlice(data, 0, data.length ~/ 2, false);
+        sink.addSlice(data, data.length ~/ 2, data.length, true);
+        final mac = await sink.mac();
 
-      // // Use 'package:crypto' for calculating the correct answer
-      final expectedBytes = crypto.Hmac(
-        crypto.sha512,
-        secretKey.bytes,
-      ).convert(data).bytes;
-      expect(
-        hexFromBytes(mac.bytes),
-        hexFromBytes(expectedBytes),
-        reason: 'length: $n',
-      );
-    }
-  });
+        // // Use 'package:crypto' for calculating the correct answer
+        final expectedBytes = crypto.Hmac(
+          crypto.sha512,
+          secretKey.bytes,
+        ).convert(data).bytes;
+        expect(
+          hexFromBytes(mac.bytes),
+          hexFromBytes(expectedBytes),
+          reason: 'length: $n',
+        );
+      }
+    },
+  );
+
+  test(
+    'Hmac.sha512(), add(), add(), close(): different secretKey and data lengths',
+    () async {
+      final buffer = Uint8List(129);
+      for (var i = 0; i < buffer.length; i++) {
+        buffer[i] = i;
+      }
+      for (var n = 0; n < buffer.length; n++) {
+        final data = buffer.buffer.asUint8List(0, n);
+        final secretKey = SecretKeyData(data.buffer.asUint8List(max(1, n)));
+        for (var i = 0; i < data.length; i++) {
+          data[i] = 0xFF & i;
+        }
+
+        // ignore: unused_local_variable
+        final sink = await Hmac.sha512().newMacSink(secretKey: secretKey);
+        sink.add(data.sublist(0, data.length ~/ 2));
+        sink.add(data.sublist(data.length ~/ 2, data.length));
+        sink.close();
+        final mac = await sink.mac();
+
+        // // Use 'package:crypto' for calculating the correct answer
+        final expectedBytes = crypto.Hmac(
+          crypto.sha512,
+          secretKey.bytes,
+        ).convert(data).bytes;
+        expect(
+          hexFromBytes(mac.bytes),
+          hexFromBytes(expectedBytes),
+          reason: 'length: $n',
+        );
+      }
+    },
+  );
 
   test('newSink(): different secretKey and data lengths', () async {
     for (var n = 2; n < 1024; n++) {
@@ -193,9 +195,7 @@ void _testHmac(Hmac hmac) {
       for (var i = 0; i < data.length; i++) {
         data[i] = 0xFF & i;
       }
-      final sink = await hmac.newMacSink(
-        secretKey: secretKey,
-      );
+      final sink = await hmac.newMacSink(secretKey: secretKey);
       sink.addSlice(data, 0, 0, false);
       sink.addSlice(data, 0, 1, false);
       sink.add(data.sublist(1, 2));
@@ -221,13 +221,13 @@ void _testHmac(Hmac hmac) {
   group('RFC 4231:', () {
     group('test vector #1:', () {
       // "Hi There"
-      final input = hexToBytes(
-        '4869205468657265',
+      final input = hexToBytes('4869205468657265');
+      final secretKey = SecretKey(
+        hexToBytes(
+          '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'
+          '0b0b0b0b',
+        ),
       );
-      final secretKey = SecretKey(hexToBytes(
-        '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'
-        '0b0b0b0b',
-      ));
 
       test('sha224, calculateMac()', () async {
         final expected = hexToBytes(
@@ -240,10 +240,7 @@ void _testHmac(Hmac hmac) {
           secretKey: secretKey,
           nonce: const <int>[],
         );
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
         expect(
           await hmac.calculateMac(
             input,
@@ -265,10 +262,7 @@ void _testHmac(Hmac hmac) {
           secretKey: secretKey,
           nonce: const <int>[],
         );
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
         expect(
           await hmac.calculateMac(
             input,
@@ -288,10 +282,7 @@ void _testHmac(Hmac hmac) {
         final sink = await hmac.newMacSink(secretKey: secretKey);
         sink.addSlice(input, 0, input.length, true);
         final hash = await sink.mac();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
         expect(
           await hmac.calculateMac(
             input,
@@ -312,10 +303,7 @@ void _testHmac(Hmac hmac) {
         sink.add(input);
         sink.close();
         final hash = await sink.mac();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
         expect(
           await hmac.calculateMac(
             input,
@@ -338,10 +326,7 @@ void _testHmac(Hmac hmac) {
           secretKey: secretKey,
           nonce: const <int>[],
         );
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
       });
 
       test('sha512, calculateMac()', () async {
@@ -357,10 +342,7 @@ void _testHmac(Hmac hmac) {
           secretKey: secretKey,
           nonce: const <int>[],
         );
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expected),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expected));
       });
     });
 
@@ -377,18 +359,17 @@ void _testHmac(Hmac hmac) {
           fillBytesWithSecureRandom(input, random: random);
           for (var j = 1; j < input.length; j++) {
             final slice = input.buffer.asUint8List(0, j);
-            final hash = algorithm.calculateMacSync(
-              slice,
-              secretKeyData: secretKeyData,
-              nonce: const [],
-            ).bytes;
+            final hash = algorithm
+                .calculateMacSync(
+                  slice,
+                  secretKeyData: secretKeyData,
+                  nonce: const [],
+                )
+                .bytes;
             final packageCryptoHash = googleHmac.convert(slice).bytes;
             // Use if statement for better performance
             if (!const ListEquality().equals(hash, packageCryptoHash)) {
-              expect(
-                hexFromBytes(hash),
-                hexFromBytes(packageCryptoHash),
-              );
+              expect(hexFromBytes(hash), hexFromBytes(packageCryptoHash));
             }
 
             {
@@ -397,10 +378,7 @@ void _testHmac(Hmac hmac) {
               );
               sink.add(slice);
               sink.close();
-              expect(
-                sink.macSync().bytes,
-                packageCryptoHash,
-              );
+              expect(sink.macSync().bytes, packageCryptoHash);
             }
 
             {
@@ -410,10 +388,7 @@ void _testHmac(Hmac hmac) {
               final n = slice.length ~/ 2;
               sink.addSlice(slice, 0, n, false);
               sink.addSlice(slice, n, slice.length, true);
-              expect(
-                sink.macSync().bytes,
-                packageCryptoHash,
-              );
+              expect(sink.macSync().bytes, packageCryptoHash);
             }
 
             {
@@ -424,10 +399,7 @@ void _testHmac(Hmac hmac) {
               sink.addSlice(slice, 0, n, false);
               sink.addSlice(slice, n, 2 * n, false);
               sink.addSlice(slice, 2 * n, slice.length, true);
-              expect(
-                sink.macSync().bytes,
-                packageCryptoHash,
-              );
+              expect(sink.macSync().bytes, packageCryptoHash);
             }
           }
         }

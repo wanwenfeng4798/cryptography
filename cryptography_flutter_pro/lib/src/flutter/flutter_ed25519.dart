@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/helpers.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/helpers.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../cryptography_flutter_pro.dart';
@@ -60,35 +60,26 @@ class FlutterEd25519 extends DelegatingEd25519
   }
 
   @override
-  Future<Signature> sign(
-    List<int> message, {
-    required KeyPair keyPair,
-  }) async {
+  Future<Signature> sign(List<int> message, {required KeyPair keyPair}) async {
     if (!kIsWeb) {
       if (keyPair is SimpleKeyPair) {
         if (isSupportedPlatform) {
           final privateKeyBytes = await keyPair.extractPrivateKeyBytes();
           final publicKey = await keyPair.extractPublicKey();
-          final publicKeyBytes = Uint8List.fromList(
-            publicKey.bytes,
-          );
-          final result = await invokeMethod(
-            'Ed25519.sign',
-            {
-              'data': asUint8List(message),
-              'privateKey': asUint8List(privateKeyBytes),
-              'publicKey': asUint8List(publicKeyBytes),
-            },
-          );
+          final publicKeyBytes = Uint8List.fromList(publicKey.bytes);
+          final result = await invokeMethod('Ed25519.sign', {
+            'data': asUint8List(message),
+            'privateKey': asUint8List(privateKeyBytes),
+            'publicKey': asUint8List(publicKeyBytes),
+          });
           final error = result['error'];
           if (error is String) {
-            throw StateError('error in "package:cryptography_flutter_pro": $error');
+            throw StateError(
+              'error in "package:cryptography_flutter_pro": $error',
+            );
           }
           final bytes = result['signature'] as Uint8List;
-          return Signature(
-            bytes,
-            publicKey: publicKey,
-          );
+          return Signature(bytes, publicKey: publicKey);
         }
       }
     }
@@ -96,31 +87,24 @@ class FlutterEd25519 extends DelegatingEd25519
   }
 
   @override
-  Future<bool> verify(
-    List<int> message, {
-    required Signature signature,
-  }) async {
+  Future<bool> verify(List<int> message, {required Signature signature}) async {
     if (isSupportedPlatform) {
       final publicKey = signature.publicKey;
       if (publicKey is SimplePublicKey && isSupportedPlatform) {
-        final result = await invokeMethod(
-          'Ed25519.verify',
-          {
-            'data': asUint8List(message),
-            'signature': asUint8List(signature.bytes),
-            'publicKey': asUint8List(publicKey.bytes),
-          },
-        );
+        final result = await invokeMethod('Ed25519.verify', {
+          'data': asUint8List(message),
+          'signature': asUint8List(signature.bytes),
+          'publicKey': asUint8List(publicKey.bytes),
+        });
         final error = result['error'];
         if (error is String) {
-          throw StateError('error in "package:cryptography_flutter_pro": $error');
+          throw StateError(
+            'error in "package:cryptography_flutter_pro": $error',
+          );
         }
         return result['ok'] as bool;
       }
     }
-    return await fallback.verify(
-      message,
-      signature: signature,
-    );
+    return await fallback.verify(message, signature: signature);
   }
 }

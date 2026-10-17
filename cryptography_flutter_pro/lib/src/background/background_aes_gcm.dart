@@ -14,8 +14,8 @@
 
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../cryptography_flutter_pro.dart';
@@ -52,52 +52,48 @@ class BackgroundAesGcm extends AesGcm with BackgroundCipherMixin {
     this.nonceLength = AesGcm.defaultNonceLength,
     CryptographyChannelPolicy? channelPolicy,
     super.random,
-  })  : assert(secretKeyLength == 16 ||
-            secretKeyLength == 24 ||
-            secretKeyLength == 32),
-        channelPolicy = random != null
-            ? CryptographyChannelPolicy.never
-            : (channelPolicy ?? BackgroundCipher.defaultChannelPolicy),
-        super.constructor();
+  }) : assert(
+         secretKeyLength == 16 ||
+             secretKeyLength == 24 ||
+             secretKeyLength == 32,
+       ),
+       channelPolicy = random != null
+           ? CryptographyChannelPolicy.never
+           : (channelPolicy ?? BackgroundCipher.defaultChannelPolicy),
+       super.constructor();
 
-  BackgroundAesGcm.with128bits({
-    int nonceLength = AesGcm.defaultNonceLength,
-  }) : this(secretKeyLength: 16, nonceLength: nonceLength);
+  BackgroundAesGcm.with128bits({int nonceLength = AesGcm.defaultNonceLength})
+    : this(secretKeyLength: 16, nonceLength: nonceLength);
 
-  BackgroundAesGcm.with192bits({
-    int nonceLength = AesGcm.defaultNonceLength,
-  }) : this(secretKeyLength: 24, nonceLength: nonceLength);
+  BackgroundAesGcm.with192bits({int nonceLength = AesGcm.defaultNonceLength})
+    : this(secretKeyLength: 24, nonceLength: nonceLength);
 
-  BackgroundAesGcm.with256bits({
-    int nonceLength = AesGcm.defaultNonceLength,
-  }) : this(secretKeyLength: 32, nonceLength: nonceLength);
+  BackgroundAesGcm.with256bits({int nonceLength = AesGcm.defaultNonceLength})
+    : this(secretKeyLength: 32, nonceLength: nonceLength);
 
   @override
   Future<List> dispatchBackgroundDecrypt(List args) async {
-    return await compute(
-      _computeDecrypt,
-      [secretKeyLength, nonceLength, ...args],
-      debugLabel: 'BackgroundAesGcm.decrypt',
-    );
+    return await compute(_computeDecrypt, [
+      secretKeyLength,
+      nonceLength,
+      ...args,
+    ], debugLabel: 'BackgroundAesGcm.decrypt');
   }
 
   @override
   Future<List> dispatchBackgroundEncrypt(List args) async {
-    return await compute(
-      _computeEncrypt,
-      [secretKeyLength, nonceLength, ...args],
-      debugLabel: 'BackgroundAesGcm.encrypt',
-    );
+    return await compute(_computeEncrypt, [
+      secretKeyLength,
+      nonceLength,
+      ...args,
+    ], debugLabel: 'BackgroundAesGcm.encrypt');
   }
 
   static Future<List> _computeDecrypt(List args) async {
     final secretKeyLength = args[0] as int;
     final nonceLength = args[1] as int;
     return await BackgroundCipher.receivedDecrypt(
-      DartAesGcm(
-        secretKeyLength: secretKeyLength,
-        nonceLength: nonceLength,
-      ),
+      DartAesGcm(secretKeyLength: secretKeyLength, nonceLength: nonceLength),
       args.skip(2).toList(),
     );
   }
@@ -106,10 +102,7 @@ class BackgroundAesGcm extends AesGcm with BackgroundCipherMixin {
     final secretKeyLength = args[0] as int;
     final nonceLength = args[1] as int;
     return await BackgroundCipher.receivedEncrypt(
-      DartAesGcm(
-        secretKeyLength: secretKeyLength,
-        nonceLength: nonceLength,
-      ),
+      DartAesGcm(secretKeyLength: secretKeyLength, nonceLength: nonceLength),
       args.skip(2).toList(),
     );
   }

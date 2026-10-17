@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:flutter/foundation.dart';
 
 /// [Pbkdf2] that's optimized to use [compute].
@@ -89,10 +89,7 @@ class BackgroundPbkdf2 extends Pbkdf2 {
       macAlgorithm: macAlgorithm,
       iterations: iterations,
       bits: bits,
-    ).deriveKey(
-      secretKey: secretKey,
-      nonce: nonce,
-    );
+    ).deriveKey(secretKey: secretKey, nonce: nonce);
   }
 
   Future<List> _args(SecretKey secretKey, List<int> nonce) async {
@@ -100,7 +97,9 @@ class BackgroundPbkdf2 extends Pbkdf2 {
   }
 
   static Future<List<int>> _compute(
-      List args, MacAlgorithm macAlgorithm) async {
+    List args,
+    MacAlgorithm macAlgorithm,
+  ) async {
     final bits = args[0];
     final iterations = args[1];
     final secretKeyBytes = args[2] as List<int>;

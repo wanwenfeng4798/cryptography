@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -20,10 +20,7 @@ import '../hex.dart';
 import '../signature.dart';
 
 void testEd25519() {
-  testSignatureAlgorithm(
-    builder: () => Ed25519(),
-    otherTests: _otherTests,
-  );
+  testSignatureAlgorithm(builder: () => Ed25519(), otherTests: _otherTests);
 }
 
 void _otherTests() {
@@ -40,62 +37,49 @@ void _otherTests() {
       expect(algorithm.keyPairType.publicKeyLength, 32);
     });
 
-    test('generate 100 random keyPairs, sign/verify a random message',
-        () async {
-      for (var i = 0; i < 100; i++) {
-        // Generate a random key pair
-        final keyPair = await algorithm.newKeyPair();
-        final publicKey = await keyPair.extractPublicKey();
-        expect(publicKey.bytes, hasLength(32));
+    test(
+      'generate 100 random keyPairs, sign/verify a random message',
+      () async {
+        for (var i = 0; i < 100; i++) {
+          // Generate a random key pair
+          final keyPair = await algorithm.newKeyPair();
+          final publicKey = await keyPair.extractPublicKey();
+          expect(publicKey.bytes, hasLength(32));
 
-        // Generate a random message
-        final message = List<int>.filled(1 + (i % 128), 0);
+          // Generate a random message
+          final message = List<int>.filled(1 + (i % 128), 0);
 
-        // sign()
-        final signature = await algorithm.sign(
-          message,
-          keyPair: keyPair,
-        );
-        expect(signature.publicKey, publicKey, reason: 'iteration = $i');
+          // sign()
+          final signature = await algorithm.sign(message, keyPair: keyPair);
+          expect(signature.publicKey, publicKey, reason: 'iteration = $i');
 
-        // Verify the signed message.
-        expect(
-          await algorithm.verify(message, signature: signature),
-          isTrue,
-        );
+          // Verify the signed message.
+          expect(await algorithm.verify(message, signature: signature), isTrue);
 
-        // Try verify a slightly different message, the same signature.
-        final otherMessage = <int>[
-          // Change first byte of message
-          (message[0] + 1) % 256,
-          ...message.skip(1),
-        ];
-        expect(
-          await algorithm.verify(
-            otherMessage,
-            signature: signature,
-          ),
-          isFalse,
-        );
+          // Try verify a slightly different message, the same signature.
+          final otherMessage = <int>[
+            // Change first byte of message
+            (message[0] + 1) % 256,
+            ...message.skip(1),
+          ];
+          expect(
+            await algorithm.verify(otherMessage, signature: signature),
+            isFalse,
+          );
 
-        // Try verify the same message, slightly different signature.
-        final otherSignature = Signature(
-          <int>[
+          // Try verify the same message, slightly different signature.
+          final otherSignature = Signature(<int>[
             // Change first byte of signature bytes
             (signature.bytes[0] + 1) % 256,
             ...signature.bytes.skip(1),
-          ],
-          publicKey: publicKey,
-        );
-        expect(
-          await algorithm.verify(
-            message,
-            signature: otherSignature,
-          ),
-          isFalse,
-        );
-      }
-    });
+          ], publicKey: publicKey);
+          expect(
+            await algorithm.verify(message, signature: otherSignature),
+            isFalse,
+          );
+        }
+      },
+    );
     group('Test vectors from RFC 8032:', () {
       group('test vector #1:', () {
         // The following constants are test vectors from RFC 8032:
@@ -146,26 +130,17 @@ void _otherTests() {
             actualSignature.publicKey,
             SimplePublicKey(publicKeyBytes, type: algorithm.keyPairType),
           );
-          expect(
-            actualSignature.publicKey,
-            await keyPair.extractPublicKey(),
-          );
+          expect(actualSignature.publicKey, await keyPair.extractPublicKey());
           expect(actualSignature, signature);
         });
 
         test('verify(...)', () async {
-          final isOk = await algorithm.verify(
-            message,
-            signature: signature,
-          );
+          final isOk = await algorithm.verify(message, signature: signature);
           expect(isOk, isTrue);
         });
 
         test('verifying fails when we use other message', () async {
-          final isOk = await algorithm.verify(
-            [1, 2, 3],
-            signature: signature,
-          );
+          final isOk = await algorithm.verify([1, 2, 3], signature: signature);
           expect(isOk, isFalse);
         });
 
@@ -179,10 +154,7 @@ void _otherTests() {
           );
           final isOk = await algorithm.verify(
             message,
-            signature: Signature(
-              otherBytes,
-              publicKey: signature.publicKey,
-            ),
+            signature: Signature(otherBytes, publicKey: signature.publicKey),
           );
           expect(isOk, isFalse);
         });
@@ -198,10 +170,7 @@ void _otherTests() {
           );
           final isOk = await algorithm.verify(
             message,
-            signature: Signature(
-              signature.bytes,
-              publicKey: otherPublicKey,
-            ),
+            signature: Signature(signature.bytes, publicKey: otherPublicKey),
           );
           expect(isOk, isFalse);
         });
@@ -218,9 +187,7 @@ void _otherTests() {
         late Signature signature;
 
         setUp(() {
-          message = hexToBytes(
-            '72',
-          );
+          message = hexToBytes('72');
           privateKeyBytes = hexToBytes(
             '4ccd089b28ff96da9db6c346ec114e0f'
             '5b8a319f35aba624da8cf6ed4fb8a6fb',
@@ -258,22 +225,13 @@ void _otherTests() {
             actualSignature.publicKey,
             SimplePublicKey(publicKeyBytes, type: algorithm.keyPairType),
           );
-          expect(
-            actualSignature.publicKey,
-            await keyPair.extractPublicKey(),
-          );
+          expect(actualSignature.publicKey, await keyPair.extractPublicKey());
           expect(actualSignature, signature);
         });
 
         test('verify(...)', () async {
-          final isOk = await algorithm.verify(
-            message,
-            signature: signature,
-          );
-          expect(
-            isOk,
-            isTrue,
-          );
+          final isOk = await algorithm.verify(message, signature: signature);
+          expect(isOk, isTrue);
         });
       });
 
@@ -288,9 +246,7 @@ void _otherTests() {
         late Signature signature;
 
         setUp(() {
-          message = hexToBytes(
-            'af82',
-          );
+          message = hexToBytes('af82');
           privateKeyBytes = hexToBytes(
             'c5aa8df43f9f837bedb7442f31dcb7b1'
             '66d38535076f094b85ce3a2e0b4458f7',
@@ -336,36 +292,18 @@ void _otherTests() {
             message,
             keyPair: keyPair,
           );
-          expect(
-            actualSignature.publicKey,
-            await keyPair.extractPublicKey(),
-          );
+          expect(actualSignature.publicKey, await keyPair.extractPublicKey());
         });
 
         test('result of sign() can be verified', () async {
           final keyPair = await algorithm.newKeyPairFromSeed(privateKeyBytes);
-          final signature = await algorithm.sign(
-            message,
-            keyPair: keyPair,
-          );
-          expect(
-            await algorithm.verify(
-              message,
-              signature: signature,
-            ),
-            isTrue,
-          );
+          final signature = await algorithm.sign(message, keyPair: keyPair);
+          expect(await algorithm.verify(message, signature: signature), isTrue);
         }, testOn: 'ios');
 
         test('verify(...)', () async {
-          final isOk = await algorithm.verify(
-            message,
-            signature: signature,
-          );
-          expect(
-            isOk,
-            isTrue,
-          );
+          final isOk = await algorithm.verify(message, signature: signature);
+          expect(isOk, isTrue);
         });
       });
     });

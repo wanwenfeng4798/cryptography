@@ -1,4 +1,13 @@
 ## 0.2.5
+
+* Use standard `oct` key type, string-list `keyOps`, and certificate-chain
+  `List<List<int>>` for `x5c`. Certificate JSON uses standard base64.
+  Legacy JSON `OCT`, string `key_ops`, and single-string `x5c` are accepted on
+  input and normalized to the standard representation on output.
+* Include all key material in content equality and preserve `cty`/`keyOps`
+  through JSON and builder conversions.
+* Update dependencies and require Dart 3.11 or later.
+
 * Improves dependency constraints.
 
 ## 0.2.4

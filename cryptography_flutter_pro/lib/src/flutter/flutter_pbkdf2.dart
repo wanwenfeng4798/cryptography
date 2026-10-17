@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 
 import '../_internal.dart';
+import '../flutter_cryptography.dart';
 
 /// [Pbkdf2] that uses platform APIs in Android.
 class FlutterPbkdf2 extends Pbkdf2 {
@@ -45,31 +46,25 @@ class FlutterPbkdf2 extends Pbkdf2 {
   }) async {
     final macName = _macNameFor(macAlgorithm);
     if (macName != null) {
-      final result = await invokeMethod(
-        'pbkdf2',
-        {
-          'mac': macName,
-          'bits': bits,
-          'iterations': iterations,
-          'password': password,
-          'nonce': asUint8List(nonce),
-        },
-      );
+      final result = await invokeMethod('pbkdf2', {
+        'mac': macName,
+        'bits': bits,
+        'iterations': iterations,
+        'password': password,
+        'nonce': asUint8List(nonce),
+      });
       return SecretKeyData(result['hash'] as List<int>);
     }
     final fallback = this.fallback;
     if (fallback == null) {
       throw UnsupportedError('Unsupported and no fallback');
     }
-    return fallback.deriveKeyFromPassword(
-      password: password,
-      nonce: nonce,
-    );
+    return fallback.deriveKeyFromPassword(password: password, nonce: nonce);
   }
 
   static String? _macNameFor(MacAlgorithm macAlgorithm) {
     // Currently we support only Android
-    if (isAndroid) {
+    if (FlutterCryptography.isPluginPresent && isAndroid) {
       if (macAlgorithm is Hmac) {
         final hashAlgorithm = macAlgorithm.hashAlgorithm;
         if (hashAlgorithm is Sha1) {
@@ -93,15 +88,14 @@ class FlutterPbkdf2 extends Pbkdf2 {
   }
 
   @override
-  Future<SecretKey> deriveKey(
-      {required SecretKey secretKey, required List<int> nonce}) {
+  Future<SecretKey> deriveKey({
+    required SecretKey secretKey,
+    required List<int> nonce,
+  }) {
     final fallback = this.fallback;
     if (fallback == null) {
       throw UnsupportedError('Unsupported and no fallback');
     }
-    return fallback.deriveKey(
-      secretKey: secretKey,
-      nonce: nonce,
-    );
+    return fallback.deriveKey(secretKey: secretKey, nonce: nonce);
   }
 }

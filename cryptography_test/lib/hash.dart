@@ -21,8 +21,8 @@ library;
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:test/test.dart';
 
 import 'hex.dart';
@@ -86,41 +86,34 @@ void testHashExample({
       final algorithm = finalAlgorithm ?? _hashAlgorithm!;
       final hash = await algorithm.hash(input);
       final expectedHash = await expected();
-      expect(
-        hexFromBytes(hash.bytes),
-        hexFromBytes(expectedHash.bytes),
-      );
+      expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
     });
 
-    test('algorithm.newState(): add(firstHalf), add(secondHalf), close()',
-        () async {
-      final algorithm = finalAlgorithm ?? _hashAlgorithm!;
-      final state = algorithm.newHashSink();
-      final half = input.length ~/ 2;
-      state.add(input.sublist(0, half));
-      state.add(input.sublist(half));
-      state.close();
-      final hash = await algorithm.hash(input);
-      final expectedHash = await expected();
-      expect(
-        hexFromBytes(hash.bytes),
-        hexFromBytes(expectedHash.bytes),
-      );
-
-      // Try reset and doing the same again
-      if (state is DartHashSink) {
-        state.reset();
+    test(
+      'algorithm.newState(): add(firstHalf), add(secondHalf), close()',
+      () async {
+        final algorithm = finalAlgorithm ?? _hashAlgorithm!;
+        final state = algorithm.newHashSink();
+        final half = input.length ~/ 2;
         state.add(input.sublist(0, half));
         state.add(input.sublist(half));
         state.close();
         final hash = await algorithm.hash(input);
         final expectedHash = await expected();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expectedHash.bytes),
-        );
-      }
-    });
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
+
+        // Try reset and doing the same again
+        if (state is DartHashSink) {
+          state.reset();
+          state.add(input.sublist(0, half));
+          state.add(input.sublist(half));
+          state.close();
+          final hash = await algorithm.hash(input);
+          final expectedHash = await expected();
+          expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
+        }
+      },
+    );
 
     test('algorithm.newState(): addSlice(..., true)', () async {
       final algorithm = finalAlgorithm ?? _hashAlgorithm!;
@@ -128,10 +121,7 @@ void testHashExample({
       state.addSlice(input, 0, input.length, true);
       final hash = await algorithm.hash(input);
       final expectedHash = await expected();
-      expect(
-        hexFromBytes(hash.bytes),
-        hexFromBytes(expectedHash.bytes),
-      );
+      expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
 
       // Try reset and doing the same again
       if (state is DartHashSink) {
@@ -139,69 +129,57 @@ void testHashExample({
         state.addSlice(input, 0, input.length, true);
         final hash = await algorithm.hash(input);
         final expectedHash = await expected();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expectedHash.bytes),
-        );
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
       }
     });
 
     test(
-        'algorithm.newState(): addSlice(.., 0, mid, false), addSlice(..., mid, end, true)',
-        () async {
-      final middle = input.length ~/ 2;
+      'algorithm.newState(): addSlice(.., 0, mid, false), addSlice(..., mid, end, true)',
+      () async {
+        final middle = input.length ~/ 2;
 
-      final algorithm = finalAlgorithm ?? _hashAlgorithm!;
-      final state = algorithm.newHashSink();
-      state.addSlice(input, 0, middle, false);
-      state.addSlice(input, middle, input.length, true);
-      final hash = await algorithm.hash(input);
-      final expectedHash = await expected();
-      expect(
-        hexFromBytes(hash.bytes),
-        hexFromBytes(expectedHash.bytes),
-      );
-
-      // Try reset and doing the same again
-      if (state is DartHashSink) {
-        state.reset();
+        final algorithm = finalAlgorithm ?? _hashAlgorithm!;
+        final state = algorithm.newHashSink();
         state.addSlice(input, 0, middle, false);
         state.addSlice(input, middle, input.length, true);
         final hash = await algorithm.hash(input);
         final expectedHash = await expected();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expectedHash.bytes),
-        );
-      }
-    });
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
 
-    test('algorithm.newState(): addSlice(.., false), addSlice(..., 0, 0, true)',
-        () async {
-      final algorithm = finalAlgorithm ?? _hashAlgorithm!;
-      final state = algorithm.newHashSink();
-      state.addSlice(input, 0, input.length, false);
-      state.addSlice(input, 0, 0, true);
-      final hash = await algorithm.hash(input);
-      final expectedHash = await expected();
-      expect(
-        hexFromBytes(hash.bytes),
-        hexFromBytes(expectedHash.bytes),
-      );
+        // Try reset and doing the same again
+        if (state is DartHashSink) {
+          state.reset();
+          state.addSlice(input, 0, middle, false);
+          state.addSlice(input, middle, input.length, true);
+          final hash = await algorithm.hash(input);
+          final expectedHash = await expected();
+          expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
+        }
+      },
+    );
 
-      // Try reset and doing the same again
-      if (state is DartHashSink) {
-        state.reset();
+    test(
+      'algorithm.newState(): addSlice(.., false), addSlice(..., 0, 0, true)',
+      () async {
+        final algorithm = finalAlgorithm ?? _hashAlgorithm!;
+        final state = algorithm.newHashSink();
         state.addSlice(input, 0, input.length, false);
         state.addSlice(input, 0, 0, true);
         final hash = await algorithm.hash(input);
         final expectedHash = await expected();
-        expect(
-          hexFromBytes(hash.bytes),
-          hexFromBytes(expectedHash.bytes),
-        );
-      }
-    });
+        expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
+
+        // Try reset and doing the same again
+        if (state is DartHashSink) {
+          state.reset();
+          state.addSlice(input, 0, input.length, false);
+          state.addSlice(input, 0, 0, true);
+          final hash = await algorithm.hash(input);
+          final expectedHash = await expected();
+          expect(hexFromBytes(hash.bytes), hexFromBytes(expectedHash.bytes));
+        }
+      },
+    );
   });
 }
 
@@ -210,9 +188,5 @@ class HashExample {
   final List<int> input;
   final List<int> expected;
 
-  HashExample({
-    this.summary,
-    required this.input,
-    required this.expected,
-  });
+  HashExample({this.summary, required this.input, required this.expected});
 }

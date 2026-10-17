@@ -14,7 +14,7 @@
 
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/test.dart';
 
 import '../hex.dart';
@@ -38,17 +38,13 @@ void testArgon2() {
         nonce: utf8.encode('nonce'),
         optionalSecret: utf8.encode("secret"),
         associatedData: utf8.encode("data"),
-      ))
-          .extractBytes();
+      )).extractBytes();
 
       final expected = hexToBytes(
         '5d 00 7f 67 60 16 5c 8c e3 f0 7d 2c 5c bb 57 aa\n'
         'eb ea d5 69 e7 f6 d4 6a 63 03 16 1b 82 65 6e 87',
       );
-      expect(
-        hexFromBytes(result),
-        hexFromBytes(expected),
-      );
+      expect(hexFromBytes(result), hexFromBytes(expected));
     });
 
     test('memory=64 parallelism=2 iterations=1 hashLength=32', () async {
@@ -69,13 +65,9 @@ void testArgon2() {
         nonce: utf8.encode('salt'),
         optionalSecret: utf8.encode("secret"),
         associatedData: utf8.encode("data"),
-      ))
-          .extractBytes();
+      )).extractBytes();
 
-      expect(
-        hexFromBytes(actual),
-        hexFromBytes(expected),
-      );
+      expect(hexFromBytes(actual), hexFromBytes(expected));
     });
 
     test('memory=64 parallelism=1 iterations=2 hashLength=32', () async {
@@ -96,13 +88,9 @@ void testArgon2() {
         nonce: utf8.encode('salt'),
         optionalSecret: utf8.encode("secret"),
         associatedData: utf8.encode("data"),
-      ))
-          .extractBytes();
+      )).extractBytes();
 
-      expect(
-        hexFromBytes(actual),
-        hexFromBytes(expected),
-      );
+      expect(hexFromBytes(actual), hexFromBytes(expected));
     });
 
     test('memory=64 parallelism=1 iterations=1 hashLength=24', () async {
@@ -123,13 +111,9 @@ void testArgon2() {
         nonce: utf8.encode('salt'),
         optionalSecret: utf8.encode("secret"),
         associatedData: utf8.encode("data"),
-      ))
-          .extractBytes();
+      )).extractBytes();
 
-      expect(
-        hexFromBytes(actual),
-        hexFromBytes(expected),
-      );
+      expect(hexFromBytes(actual), hexFromBytes(expected));
     });
   });
 }

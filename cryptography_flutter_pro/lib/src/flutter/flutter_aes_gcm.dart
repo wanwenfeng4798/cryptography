@@ -14,7 +14,7 @@
 
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:flutter/services.dart';
 
 import '../../cryptography_flutter_pro.dart';
@@ -52,13 +52,11 @@ class FlutterAesGcm extends AesGcm with FlutterCipherMixin {
     CryptographyChannelPolicy? channelPolicy,
     AesGcm? fallback,
     super.random,
-  })  : fallback = fallback ??
-            BackgroundAesGcm(
-              secretKeyLength: secretKeyLength,
-              random: random,
-            ),
-        channelPolicy = channelPolicy ?? FlutterCipher.defaultChannelPolicy,
-        super.constructor();
+  }) : fallback =
+           fallback ??
+           BackgroundAesGcm(secretKeyLength: secretKeyLength, random: random),
+       channelPolicy = channelPolicy ?? FlutterCipher.defaultChannelPolicy,
+       super.constructor();
 
   /// Constructs Flutter-optimized [AesGcm] which will use 128-bit keys.
   ///
@@ -76,11 +74,7 @@ class FlutterAesGcm extends AesGcm with FlutterCipherMixin {
   FlutterAesGcm.with128bits({
     CryptographyChannelPolicy? channelPolicy,
     Random? random,
-  }) : this(
-          secretKeyLength: 16,
-          channelPolicy: channelPolicy,
-          random: random,
-        );
+  }) : this(secretKeyLength: 16, channelPolicy: channelPolicy, random: random);
 
   /// Constructs Flutter-optimized [AesGcm] which will use 192-bit keys.
   ///
@@ -98,11 +92,7 @@ class FlutterAesGcm extends AesGcm with FlutterCipherMixin {
   FlutterAesGcm.with192bits({
     CryptographyChannelPolicy? channelPolicy,
     Random? random,
-  }) : this(
-          secretKeyLength: 24,
-          channelPolicy: channelPolicy,
-          random: random,
-        );
+  }) : this(secretKeyLength: 24, channelPolicy: channelPolicy, random: random);
 
   /// Constructs Flutter-optimized [AesGcm] which will use 256-bit keys.
   ///
@@ -120,11 +110,7 @@ class FlutterAesGcm extends AesGcm with FlutterCipherMixin {
   FlutterAesGcm.with256bits({
     CryptographyChannelPolicy? channelPolicy,
     Random? random,
-  }) : this(
-          secretKeyLength: 32,
-          channelPolicy: channelPolicy,
-          random: random,
-        );
+  }) : this(secretKeyLength: 32, channelPolicy: channelPolicy, random: random);
 
   @override
   String get channelCipherName => 'AES_GCM';

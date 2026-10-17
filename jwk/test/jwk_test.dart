@@ -19,12 +19,12 @@ void main() {
   group('AES', () {
     test('fromJson / toJson', () {
       final json = <String, Object>{
-        'kty': 'OCT',
+        'kty': 'oct',
         'alg': 'A128KW',
         'k': Jwk.base64UriEncode([1, 2, 3]),
       };
       final key = Jwk.fromJson(json);
-      expect(key.kty, 'OCT');
+      expect(key.kty, 'oct');
       expect(key.alg, 'A128KW');
       expect(key.k, [1, 2, 3]);
       expect(key.toJson(), json);
@@ -34,7 +34,7 @@ void main() {
   group('Chacha20', () {
     test('fromJson / toJson', () {
       final json = <String, Object>{
-        'kty': 'OCT',
+        'kty': 'oct',
         'alg': 'C20',
         'k': Jwk.base64UriEncode([1, 2, 3]),
       };
@@ -46,7 +46,7 @@ void main() {
   group('Xchacha20', () {
     test('fromJson / toJson', () {
       final json = <String, Object>{
-        'kty': 'OCT',
+        'kty': 'oct',
         'alg': 'XC20',
         'x': Jwk.base64UriEncode([1, 2, 3]),
       };

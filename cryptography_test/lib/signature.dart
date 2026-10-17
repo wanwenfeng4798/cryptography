@@ -20,8 +20,8 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -90,22 +90,17 @@ void testSignatureAlgorithm({
       }
 
       final referenceImplementation = dartImplementation ?? signatureAlgorithm;
-      final signature0 = await referenceImplementation.sign(
-        [1, 2, 3],
-        keyPair: keyPair0,
-      );
+      final signature0 = await referenceImplementation.sign([
+        1,
+        2,
+        3,
+      ], keyPair: keyPair0);
       expect(
-        await referenceImplementation.verify(
-          [1, 2, 3],
-          signature: signature0,
-        ),
+        await referenceImplementation.verify([1, 2, 3], signature: signature0),
         isTrue,
       );
       expect(
-        await referenceImplementation.verify(
-          [0, 0, 0],
-          signature: signature0,
-        ),
+        await referenceImplementation.verify([0, 0, 0], signature: signature0),
         isFalse,
       );
     });
@@ -132,10 +127,7 @@ void testSignatureAlgorithm({
 
       // Test using the pure Dart implementation.
       expect(
-        await referenceImplementation.verify(
-          data,
-          signature: signature,
-        ),
+        await referenceImplementation.verify(data, signature: signature),
         isTrue,
       );
       expect(
@@ -156,10 +148,7 @@ void testSignatureAlgorithm({
         keyPair: keyPair,
       );
 
-      final isOk = await signatureAlgorithm.verify(
-        data,
-        signature: signature,
-      );
+      final isOk = await signatureAlgorithm.verify(data, signature: signature);
       expect(isOk, isTrue);
     });
 

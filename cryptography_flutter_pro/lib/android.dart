@@ -27,18 +27,27 @@ class AndroidCryptoProvider {
     if (!RegExp(r'^[a-zA-Z\d_.]+$').hasMatch(className)) {
       throw ArgumentError.value(className);
     }
-    return _addedCryptoProvidersByClassName[className] ??=
-        _methodChannel.invokeMethod(
+    final pending = _addedCryptoProvidersByClassName[className];
+    if (pending != null) return pending;
+    final future = _methodChannel.invokeMethod<void>(
       'androidCryptoProvidersAdd',
       className,
     );
+    _addedCryptoProvidersByClassName[className] = future;
+    try {
+      await future;
+    } catch (_) {
+      if (identical(_addedCryptoProvidersByClassName[className], future)) {
+        _addedCryptoProvidersByClassName.remove(className);
+      }
+      rethrow;
+    }
   }
 
   /// Returns all cryptography providers in Android.
   static Future<List<AndroidCryptoProvider>> all() async {
-    final result = await _methodChannel.invokeMethod(
-      'androidCryptoProviders',
-    ) as List;
+    final result =
+        await _methodChannel.invokeMethod('androidCryptoProviders') as List;
     return result.map((e) {
       e as Map;
       return AndroidCryptoProvider(
@@ -47,10 +56,7 @@ class AndroidCryptoProvider {
         version: e['version'],
         services: (e['services'] as List).map((e) {
           e as Map;
-          return AndroidCryptoService(
-            type: e['type'],
-            name: e['name'],
-          );
+          return AndroidCryptoService(type: e['type'], name: e['name']);
         }).toList(),
       );
     }).toList();
@@ -78,10 +84,7 @@ class AndroidCryptoService {
   final String type;
   final String name;
 
-  AndroidCryptoService({
-    required this.type,
-    required this.name,
-  });
+  AndroidCryptoService({required this.type, required this.name});
 
   @override
   String toString() => 'AndroidCryptoService(type: "$type", name: "$name")';

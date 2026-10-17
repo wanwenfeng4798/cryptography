@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 import 'package:cryptography_test/algorithms/rsa_ssa_pkcs5v15.dart' as shared;
 import 'package:flutter_test/flutter_test.dart';
 
 void testRsaSsaPkcs1v15() {
   group('RsaSsaPkcs1v15', () {
-    if (!FlutterRsaSsaPkcs1v15(DartRsaSsaPkcs1v15(Sha256()))
-        .isSupportedPlatform) {
+    if (!FlutterRsaSsaPkcs1v15(
+      DartRsaSsaPkcs1v15(Sha256()),
+    ).isSupportedPlatform) {
       return;
     }
     shared.testRsaSsaPkcs5v1();

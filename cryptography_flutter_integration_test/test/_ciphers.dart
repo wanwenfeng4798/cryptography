@@ -15,8 +15,8 @@
 import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -99,12 +99,8 @@ void _testCiphers() {
 }
 
 List<_CipherExample> _cipherExamples(Cipher cipher) {
-  final secretKey0 = SecretKey(
-    List<int>.filled(cipher.secretKeyLength, 1),
-  );
-  final secretKey1 = SecretKey(
-    List<int>.filled(cipher.secretKeyLength, 2),
-  );
+  final secretKey0 = SecretKey(List<int>.filled(cipher.secretKeyLength, 1));
+  final secretKey1 = SecretKey(List<int>.filled(cipher.secretKeyLength, 2));
   final nonce0 = cipher.newNonce();
   final nonce1 = cipher.newNonce();
   const empty = <int>[];
@@ -131,7 +127,7 @@ List<_CipherExample> _cipherExamples(Cipher cipher) {
     65,
     4095,
     4096,
-    4097
+    4097,
   ];
 
   return <_CipherExample>[
@@ -201,16 +197,14 @@ void _testCipher({
 
   group('$defaultCipher:', () {
     test(
-        'Default cipher in this platform implements $FlutterCipher or $BackgroundCipher',
-        () {
-      expect(
-        defaultCipher,
-        anyOf(
-          isA<FlutterCipher>(),
-          isA<BackgroundCipher>(),
-        ),
-      );
-    });
+      'Default cipher in this platform implements $FlutterCipher or $BackgroundCipher',
+      () {
+        expect(
+          defaultCipher,
+          anyOf(isA<FlutterCipher>(), isA<BackgroundCipher>()),
+        );
+      },
+    );
     //
     // Define example inputs.
     //
@@ -249,17 +243,11 @@ void _testCipher({
     // Test cases.
     //
     test('nonceLength', () {
-      expect(
-        cipher.nonceLength,
-        dartCipher.nonceLength,
-      );
+      expect(cipher.nonceLength, dartCipher.nonceLength);
     });
 
     test('macAlgorithm.macLength', () {
-      expect(
-        cipher.macAlgorithm.macLength,
-        dartCipher.macAlgorithm.macLength,
-      );
+      expect(cipher.macAlgorithm.macLength, dartCipher.macAlgorithm.macLength);
     });
 
     test('macAlgorithm.supportsAad', () {
@@ -277,8 +265,7 @@ void _testCipher({
       50 * 1000 * 1000,
       BackgroundCipher.defaultChannelPolicy.minLength,
       FlutterCipher.defaultChannelPolicy.minLength,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
 
     for (var length in lengths) {
       _testCipherPerformance(
@@ -294,11 +281,7 @@ void _testCipher({
     // Test all the examples.
     //
     for (var example in examples) {
-      _testExample(
-        cipher: cipher,
-        dartCipher: dartCipher,
-        example: example,
-      );
+      _testExample(cipher: cipher, dartCipher: dartCipher, example: example);
     }
   });
 }
@@ -565,41 +548,37 @@ void _testCipherPerformance({
   required int size,
   required int n,
 }) {
-  test('size=${sizeString(size)} and n=${amountString(n)} performance',
-      () async {
-    printOnFailure('Implementation is: $cipher');
-    if (cipher.runtimeType == dartCipher.runtimeType) {
-      return;
-    }
-    final clearText = Uint8List(size);
-    final secretKey = await cipher.newSecretKey();
-    final nonce = cipher.newNonce();
-    await cipher.encrypt(
-      clearText,
-      secretKey: secretKey,
-      nonce: nonce,
-    );
-    await expectFasterThanPureDart(
-      description:
-          '$cipher when size=${sizeString(size)} and n=${amountString(n)}',
-      dart: () async {
-        await dartCipher.encrypt(
-          clearText,
-          secretKey: secretKey,
-          nonce: nonce,
-        );
-      },
-      dartObject: dartCipher,
-      benchmarked: () async {
-        await cipher.encrypt(
-          clearText,
-          secretKey: secretKey,
-          nonce: nonce,
-        );
-      },
-      benchmarkedObject: cipher,
-      maxRelativeLatency: maxRelativeLatency,
-      n: n,
-    );
-  }, timeout: const Timeout.factor(10.0));
+  test(
+    'size=${sizeString(size)} and n=${amountString(n)} performance',
+    () async {
+      printOnFailure('Implementation is: $cipher');
+      if (cipher.runtimeType == dartCipher.runtimeType) {
+        return;
+      }
+      final clearText = Uint8List(size);
+      final secretKey = await cipher.newSecretKey();
+      final nonce = cipher.newNonce();
+      await cipher.encrypt(clearText, secretKey: secretKey, nonce: nonce);
+      await expectFasterThanPureDart(
+        description:
+            '$cipher when size=${sizeString(size)} and n=${amountString(n)}',
+        dart: () async {
+          await dartCipher.encrypt(
+            clearText,
+            secretKey: secretKey,
+            nonce: nonce,
+          );
+        },
+        dartObject: dartCipher,
+        benchmarked: () async {
+          await cipher.encrypt(clearText, secretKey: secretKey, nonce: nonce);
+        },
+        benchmarkedObject: cipher,
+        maxRelativeLatency: maxRelativeLatency,
+        n: n,
+      );
+    },
+    timeout: const Timeout.factor(10.0),
+    tags: ['benchmark'],
+  );
 }

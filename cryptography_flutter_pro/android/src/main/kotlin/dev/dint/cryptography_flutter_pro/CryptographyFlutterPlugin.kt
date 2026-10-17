@@ -14,8 +14,6 @@
 
 package dev.dint.cryptography_flutter_pro
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -67,7 +65,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
                 // X25519
                 "X25519.newKeyPair" -> x25519NewKeyPair(call, result)
-                "X25519.sign" -> x25519SharedSecretKey(call, result)
+                "X25519.sharedSecretKey" -> x25519SharedSecretKey(call, result)
 
                 // Other
                 "hmac" -> hmac(call, result)
@@ -114,6 +112,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private fun androidCryptoProvidersAdd(call: MethodCall, result: Result) {
         val provider = Class.forName(call.arguments as String).getConstructor().newInstance()
         Security.addProvider(provider as Provider)
+        result.success(null)
     }
 
     private fun androidCipherAlgo(dartAlgo: String?): String? {
@@ -168,7 +167,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         }
         cipher.init(
             Cipher.DECRYPT_MODE,
-            SecretKeySpec(secretKey, androidAlgo),
+            SecretKeySpec(secretKey, if (dartAlgo == "AES_GCM") "AES" else "ChaCha20"),
             params,
         )
 
@@ -177,9 +176,8 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
             cipher.updateAAD(aad)
         }
 
-        cipher.update(cipherText)
         try {
-            val clearText = cipher.doFinal(mac)
+            val clearText = CryptoPrimitives.decryptAead(cipher, cipherText, mac!!)
             result.success(
                 hashMapOf(
                     "clearText" to clearText,
@@ -234,7 +232,6 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         val secretKey = call.argument<ByteArray>("key")
         val nonce = call.argument<ByteArray>("nonce")
         val aad = call.argument<ByteArray>("aad")
-        val dartMacAlgo = call.argument<String>("macAlgo")
 
         val params = if (dartAlgo == "AES_GCM") {
             GCMParameterSpec(macLength * 8, nonce)
@@ -243,7 +240,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         }
         cipher.init(
             Cipher.ENCRYPT_MODE,
-            SecretKeySpec(secretKey, androidAlgo),
+            SecretKeySpec(secretKey, if (dartAlgo == "AES_GCM") "AES" else "ChaCha20"),
             params,
         )
 
@@ -269,7 +266,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private fun ecNewKeyPair(call: MethodCall, result: Result) {
         val dartAlgo = call.argument<String>("curve")!!
         val curve = when (dartAlgo) {
-            "p256" -> "prime256v1"
+            "p256" -> "secp256r1"
             "p384" -> "secp384r1"
             "p521" -> "secp521r1"
             else -> null
@@ -290,9 +287,9 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
         result.success(
             hashMapOf(
-                "d" to privateKey.s.toByteArray(),
-                "x" to publicKey.w.affineX.toByteArray(),
-                "y" to publicKey.w.affineY.toByteArray(),
+                "d" to CryptoPrimitives.unsignedBytes(privateKey.s, (privateKey.params.curve.field.fieldSize + 7) / 8),
+                "x" to CryptoPrimitives.unsignedBytes(publicKey.w.affineX, (publicKey.params.curve.field.fieldSize + 7) / 8),
+                "y" to CryptoPrimitives.unsignedBytes(publicKey.w.affineY, (publicKey.params.curve.field.fieldSize + 7) / 8),
             )
         )
     }
@@ -300,7 +297,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private fun ecdhSharedSecretKey(call: MethodCall, result: Result) {
         val dartCurve = call.argument<String>("curve")!!
         val curve = when (dartCurve) {
-            "p256" -> "prime256v1"
+            "p256" -> "secp256r1"
             "p384" -> "secp384r1"
             "p521" -> "secp521r1"
             else -> null
@@ -310,8 +307,6 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
             return
         }
         val d = call.argument<ByteArray>("localD")!!
-        val x = call.argument<ByteArray>("localX")!!
-        val y = call.argument<ByteArray>("localY")!!
         val provider = call.argument<String>("androidProvider")
 
         val parameters = when (provider) {
@@ -321,13 +316,13 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         parameters.init(ECGenParameterSpec(curve))
         val ecParameters = parameters.getParameterSpec(ECParameterSpec::class.java)
         val privateKeySpec = ECPrivateKeySpec(
-            BigInteger(d),
+            BigInteger(1, d),
             ecParameters
         )
 
         val remoteX = call.argument<ByteArray>("remoteX")!!
         val remoteY = call.argument<ByteArray>("remoteY")!!
-        val remotePublicPoint = ECPoint(BigInteger(remoteX), BigInteger(remoteY))
+        val remotePublicPoint = ECPoint(BigInteger(1, remoteX), BigInteger(1, remoteY))
         val remotePublicKeySpec = ECPublicKeySpec(remotePublicPoint, ecParameters)
 
         val keyFactory = when (provider) {
@@ -357,7 +352,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
     private fun ecdsaSign(call: MethodCall, result: Result) {
         val dartCurve = call.argument<String>("curve")!!
         val curve = when (dartCurve) {
-            "p256" -> "prime256v1"
+            "p256" -> "secp256r1"
             "p384" -> "secp384r1"
             "p521" -> "secp521r1"
             else -> null
@@ -375,8 +370,6 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
         val message = call.argument<ByteArray>("data")!!
         val d = call.argument<ByteArray>("d")!!
-        val x = call.argument<ByteArray>("x")!!
-        val y = call.argument<ByteArray>("y")!!
         val provider = call.argument<String>("androidProvider")
 
         val parameters = when (provider) {
@@ -386,7 +379,7 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         parameters.init(ECGenParameterSpec(curve))
         val ecParameters = parameters.getParameterSpec(ECParameterSpec::class.java)
         val privateKeySpec = ECPrivateKeySpec(
-            BigInteger(d),
+            BigInteger(1, d),
             ecParameters
         )
 
@@ -430,8 +423,8 @@ class CryptographyFlutterPlugin : FlutterPlugin, MethodCallHandler {
         }!!
 
         val message = call.argument<ByteArray>("data")!!
-        val x = BigInteger(call.argument<ByteArray>("x")!!)
-        val y = BigInteger(call.argument<ByteArray>("y")!!)
+        val x = BigInteger(1, call.argument<ByteArray>("x")!!)
+        val y = BigInteger(1, call.argument<ByteArray>("y")!!)
         val verifiedSignatureBytes = call.argument<ByteArray>("signature")!!
         val provider = call.argument<String>("androidProvider")
 

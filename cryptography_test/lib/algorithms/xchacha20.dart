@@ -12,21 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 
 import '../cipher.dart';
 
 void testXchacha20() {
-  testCipher(
-    builder: () => Xchacha20(macAlgorithm: MacAlgorithm.empty),
-  );
-  testCipher(
-    builder: () => Xchacha20(macAlgorithm: Hmac.sha256()),
-  );
-  testCipher(
-    builder: () => Xchacha20(macAlgorithm: Hmac.sha512()),
-  );
-  testCipher(
-    builder: () => Xchacha20.poly1305Aead(),
-  );
+  testCipher(builder: () => Xchacha20(macAlgorithm: MacAlgorithm.empty));
+  testCipher(builder: () => Xchacha20(macAlgorithm: Hmac.sha256()));
+  testCipher(builder: () => Xchacha20(macAlgorithm: Hmac.sha512()));
+  testCipher(builder: () => Xchacha20.poly1305Aead());
 }

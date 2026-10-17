@@ -25,7 +25,8 @@ const MethodChannel _methodChannel = MethodChannel('cryptography_flutter_pro');
 bool get isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
 @internal
-bool get isCupertino => (defaultTargetPlatform == TargetPlatform.iOS ||
+bool get isCupertino =>
+    (defaultTargetPlatform == TargetPlatform.iOS ||
     defaultTargetPlatform == TargetPlatform.macOS);
 
 /// Returns the bytes as [Uint8List].
@@ -40,8 +41,11 @@ Uint8List asUint8List(List<int> bytes) {
 
 /// Invokes plugin method.
 @internal
-Future<Map> invokeMethod(String name, Map<String, Object?> arguments,
-    {bool useQueue = true}) async {
+Future<Map> invokeMethod(
+  String name,
+  Map<String, Object?> arguments, {
+  bool useQueue = true,
+}) async {
   final isPluginAvailable = FlutterCryptography.isPluginPresent;
   if (!isPluginAvailable) {
     throw UnsupportedError('Unsupported platform.');

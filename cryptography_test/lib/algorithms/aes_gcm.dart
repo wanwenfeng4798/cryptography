@@ -14,7 +14,7 @@
 
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -22,12 +22,8 @@ import '../cipher.dart';
 import '../hex.dart';
 
 void testAesGcm() {
-  testCipher(
-    builder: () => AesGcm.with128bits(),
-  );
-  testCipher(
-    builder: () => AesGcm.with192bits(),
-  );
+  testCipher(builder: () => AesGcm.with128bits());
+  testCipher(builder: () => AesGcm.with192bits());
   testCipher(
     builder: () => AesGcm.with256bits(),
     otherTests: (cipher) {
@@ -38,7 +34,8 @@ void testAesGcm() {
       test('AesGcm.with128bits(): 1 000 cycles', () async {
         await _testAesGcmExample(
           algorithm: AesGcm.with128bits(),
-          expectedHex: ''
+          expectedHex:
+              ''
               'f3 52 fb 3f a0 3d 70 25 f3 0f 48 01 eb 3a d2 85\n'
               '89 53 06 4d 8c 53 25 38 96 ca 71 c2 90 f0 3b 06',
         );
@@ -48,7 +45,8 @@ void testAesGcm() {
         await _testAesGcmExample(
           algorithm: AesGcm.with128bits(),
           aad: [1, 2, 3],
-          expectedHex: ''
+          expectedHex:
+              ''
               'e5 a3 57 59 6c 11 c0 ab 18 e6 b3 f5 71 6a f9 46\n'
               '25 ce 95 7d eb 29 c4 bf 24 80 6d 33 e2 f5 1f 2b',
         );
@@ -58,7 +56,8 @@ void testAesGcm() {
         await _testAesGcmExample(
           algorithm: AesGcm.with192bits(),
           aad: [1, 2, 3],
-          expectedHex: ''
+          expectedHex:
+              ''
               '76 5d 6c 02 16 56 a0 ef 22 e1 97 5c 4b 81 fc 36\n'
               '2b 9c 5a da d9 2d 6c d5 c9 94 c7 a2 c8 73 e7 ab',
         );
@@ -67,7 +66,8 @@ void testAesGcm() {
       test('AesGcm.with256bits(): 1 000 cycles', () async {
         await _testAesGcmExample(
           algorithm: AesGcm.with256bits(),
-          expectedHex: ''
+          expectedHex:
+              ''
               '2e f9 45 f9 4b 94 43 d9 1a 43 3d c2 e4 40 c0 0f\n'
               '20 27 0d 93 3d 47 ae 44 41 29 6e 3c 32 27 97 ef',
         );
@@ -77,7 +77,8 @@ void testAesGcm() {
         await _testAesGcmExample(
           algorithm: AesGcm.with256bits(),
           aad: [1, 2, 3],
-          expectedHex: ''
+          expectedHex:
+              ''
               '52 dd c6 e5 07 65 f1 46 7e 1c 5a f5 9f cb 0c 69\n'
               '84 11 c1 52 83 08 b5 3b 19 28 d5 79 bd 2f aa c7',
         );
@@ -96,9 +97,7 @@ Future<void> _testAesGcmExample({
     '02020202020202020202020202020202'
     '02020202020202020202020202020202',
   ).sublist(0, algorithm.secretKeyLength);
-  var nonce = hexToBytes(
-    '03030303030303030303030303030303',
-  );
+  var nonce = hexToBytes('03030303030303030303030303030303');
   final hashAlgorithm = Sha256();
 
   var data = List<int>.filled(rounds + 1000, 1);
@@ -132,9 +131,9 @@ Future<void> _testAesGcmExample({
     data = data.sublist(1);
 
     // Change  secret key
-    secretKeyBytes = (await hashAlgorithm.hash(data))
-        .bytes
-        .sublist(0, algorithm.secretKeyLength);
+    secretKeyBytes = (await hashAlgorithm.hash(
+      data,
+    )).bytes.sublist(0, algorithm.secretKeyLength);
 
     // Change nonce
     nonce = (await hashAlgorithm.hash(secretKeyBytes)).bytes.sublist(0, 12);
@@ -142,10 +141,7 @@ Future<void> _testAesGcmExample({
 
   expect(data, hasLength(1000));
   final hash = await hashAlgorithm.hash(data);
-  expect(
-    hexFromBytes(hash.bytes),
-    expectedHex,
-  );
+  expect(hexFromBytes(hash.bytes), expectedHex);
 
   // We don't need to test MAC because its part of the clearText at each round
   // after the first one.

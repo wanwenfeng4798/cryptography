@@ -14,14 +14,11 @@
 
 import 'dart:convert';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    title: 'Cryptography demo',
-    home: CipherPage(),
-  ));
+  runApp(const MaterialApp(title: 'Cryptography demo', home: CipherPage()));
 }
 
 List<int> _fromHex(String s) {
@@ -123,54 +120,60 @@ class _CipherPageState extends State<CipherPage> {
                 const SizedBox(height: 10),
                 Text('Class: ${cipher.runtimeType}'),
                 const SizedBox(height: 10),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _secretKeyController,
-                      onChanged: (value) {
-                        _encrypt();
-                      },
-                      minLines: 1,
-                      maxLines: 16,
-                      enableInteractiveSelection: true,
-                      decoration: InputDecoration(
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _secretKeyController,
+                        onChanged: (value) {
+                          _encrypt();
+                        },
+                        minLines: 1,
+                        maxLines: 16,
+                        enableInteractiveSelection: true,
+                        decoration: InputDecoration(
                           labelText:
-                              'Secret key  (${_cipher.secretKeyLength} bytes)'),
+                              'Secret key  (${_cipher.secretKeyLength} bytes)',
+                        ),
+                      ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final secretKey = await _cipher.newSecretKey();
-                      final bytes = await secretKey.extractBytes();
-                      _secretKeyController.text = _toHex(bytes);
-                      await _encrypt();
-                    },
-                    child: const Text('Generate'),
-                  ),
-                ]),
-                const SizedBox(height: 10),
-                Row(children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _nonceController,
-                      onChanged: (value) {
-                        _encrypt();
+                    ElevatedButton(
+                      onPressed: () async {
+                        final secretKey = await _cipher.newSecretKey();
+                        final bytes = await secretKey.extractBytes();
+                        _secretKeyController.text = _toHex(bytes);
+                        await _encrypt();
                       },
-                      minLines: 1,
-                      maxLines: 16,
-                      enableInteractiveSelection: true,
-                      decoration: InputDecoration(
-                          labelText: 'Nonce (${_cipher.nonceLength} bytes)'),
+                      child: const Text('Generate'),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      _nonceController.text = _toHex(_cipher.newNonce());
-                      await _encrypt();
-                    },
-                    child: const Text('Generate'),
-                  ),
-                ]),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _nonceController,
+                        onChanged: (value) {
+                          _encrypt();
+                        },
+                        minLines: 1,
+                        maxLines: 16,
+                        enableInteractiveSelection: true,
+                        decoration: InputDecoration(
+                          labelText: 'Nonce (${_cipher.nonceLength} bytes)',
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        _nonceController.text = _toHex(_cipher.newNonce());
+                        await _encrypt();
+                      },
+                      child: const Text('Generate'),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 30),
                 const Text('Encrypt'),
                 TextField(
@@ -187,8 +190,9 @@ class _CipherPageState extends State<CipherPage> {
                   minLines: 1,
                   maxLines: 16,
                   enableInteractiveSelection: true,
-                  decoration:
-                      const InputDecoration(labelText: 'Cleartext (text)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Cleartext (text)',
+                  ),
                 ),
                 const SizedBox(height: 10),
                 const Text('Decrypted Text'),
@@ -204,8 +208,9 @@ class _CipherPageState extends State<CipherPage> {
                   minLines: 1,
                   maxLines: 16,
                   enableInteractiveSelection: true,
-                  decoration:
-                      const InputDecoration(labelText: 'Ciphertext (hex)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Ciphertext (hex)',
+                  ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
@@ -214,7 +219,8 @@ class _CipherPageState extends State<CipherPage> {
                   maxLines: 16,
                   enableInteractiveSelection: true,
                   decoration: const InputDecoration(
-                      labelText: 'Message Authentication Code (MAC)'),
+                    labelText: 'Message Authentication Code (MAC)',
+                  ),
                 ),
                 const SizedBox(height: 10),
                 if (error != null) Text(error.toString()),
@@ -231,9 +237,7 @@ class _CipherPageState extends State<CipherPage> {
       final cipher = _cipher;
       final secretBox = await cipher.encrypt(
         _clearText,
-        secretKey: SecretKeyData(
-          _fromHex(_secretKeyController.text),
-        ),
+        secretKey: SecretKeyData(_fromHex(_secretKeyController.text)),
         nonce: _fromHex(_nonceController.text),
       );
       _cipherTextController.text = _toHex(secretBox.cipherText);
@@ -257,15 +261,15 @@ class _CipherPageState extends State<CipherPage> {
   Future<void> _decrypt() async {
     final cipher = _cipher;
 
-    _decryptedText = utf8.decode(await cipher.decrypt(
-      SecretBox(
-        _fromHex(_cipherTextController.text),
-        nonce: _fromHex(_nonceController.text),
-        mac: Mac(_fromHex(_macController.text)),
+    _decryptedText = utf8.decode(
+      await cipher.decrypt(
+        SecretBox(
+          _fromHex(_cipherTextController.text),
+          nonce: _fromHex(_nonceController.text),
+          mac: Mac(_fromHex(_macController.text)),
+        ),
+        secretKey: SecretKeyData(_fromHex(_secretKeyController.text)),
       ),
-      secretKey: SecretKeyData(
-        _fromHex(_secretKeyController.text),
-      ),
-    ));
+    );
   }
 }

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:cryptography_test/algorithms/x25519.dart' as shared;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -27,40 +27,42 @@ void testX25519() {
   const count = 10;
 
   test(
-      '${defaultAlgorithm.runtimeType}.newKeyPair(...): $count times, NOT MUCH SLOWER than the pure Dart implementation',
-      () async {
-    await expectFasterThanPureDart(
-      description: 'When n=$count',
-      dart: () => dartAlgorithm.newKeyPair(),
-      dartObject: dartAlgorithm,
-      benchmarked: () => defaultAlgorithm.newKeyPair(),
-      benchmarkedObject: defaultAlgorithm,
-      maxRelativeLatency: 4.0,
-      n: count,
-    );
-  });
+    '${defaultAlgorithm.runtimeType}.newKeyPair(...): $count times, NOT MUCH SLOWER than the pure Dart implementation',
+    () async {
+      await expectFasterThanPureDart(
+        description: 'When n=$count',
+        dart: () => dartAlgorithm.newKeyPair(),
+        dartObject: dartAlgorithm,
+        benchmarked: () => defaultAlgorithm.newKeyPair(),
+        benchmarkedObject: defaultAlgorithm,
+        maxRelativeLatency: 4.0,
+        n: count,
+      );
+    },
+  );
 
   test(
-      '${defaultAlgorithm.runtimeType}.sharedSecretKey(...): $count times, NOT MUCH SLOWER than the pure Dart implementation',
-      () async {
-    final keyPair = await defaultAlgorithm.newKeyPair();
-    final peerPublicKey =
-        await (await defaultAlgorithm.newKeyPair()).extractPublicKey();
+    '${defaultAlgorithm.runtimeType}.sharedSecretKey(...): $count times, NOT MUCH SLOWER than the pure Dart implementation',
+    () async {
+      final keyPair = await defaultAlgorithm.newKeyPair();
+      final peerPublicKey = await (await defaultAlgorithm.newKeyPair())
+          .extractPublicKey();
 
-    await expectFasterThanPureDart(
-      description: 'When n=$count',
-      dart: () => dartAlgorithm.sharedSecretKey(
-        keyPair: keyPair,
-        remotePublicKey: peerPublicKey,
-      ),
-      dartObject: dartAlgorithm,
-      benchmarked: () => defaultAlgorithm.sharedSecretKey(
-        keyPair: keyPair,
-        remotePublicKey: peerPublicKey,
-      ),
-      benchmarkedObject: defaultAlgorithm,
-      maxRelativeLatency: 4.0,
-      n: count,
-    );
-  });
+      await expectFasterThanPureDart(
+        description: 'When n=$count',
+        dart: () => dartAlgorithm.sharedSecretKey(
+          keyPair: keyPair,
+          remotePublicKey: peerPublicKey,
+        ),
+        dartObject: dartAlgorithm,
+        benchmarked: () => defaultAlgorithm.sharedSecretKey(
+          keyPair: keyPair,
+          remotePublicKey: peerPublicKey,
+        ),
+        benchmarkedObject: defaultAlgorithm,
+        maxRelativeLatency: 4.0,
+        n: count,
+      );
+    },
+  );
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/test.dart';
 
 import '../hex.dart';
@@ -27,15 +27,11 @@ void testHkdf() {
       // Test vectors from RFC 5869:
       // https://tools.ietf.org/html/rfc5869
 
-      final secretKey = SecretKey(hexToBytes(
-        '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b',
-      ));
-      final nonce = hexToBytes(
-        '000102030405060708090a0b0c',
+      final secretKey = SecretKey(
+        hexToBytes('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'),
       );
-      final info = hexToBytes(
-        'f0f1f2f3f4f5f6f7f8f9',
-      );
+      final nonce = hexToBytes('000102030405060708090a0b0c');
+      final info = hexToBytes('f0f1f2f3f4f5f6f7f8f9');
       const length = 42;
       final expectedBytes = hexToBytes(
         '3cb25f25faacd57a90434f64d0362f2a'
@@ -45,19 +41,13 @@ void testHkdf() {
 
       // End of test vectors
 
-      final hkdf = Hkdf(
-        hmac: Hmac(Sha256()),
-        outputLength: length,
-      );
+      final hkdf = Hkdf(hmac: Hmac(Sha256()), outputLength: length);
       final actual = await hkdf.deriveKey(
         secretKey: secretKey,
         nonce: nonce,
         info: info,
       );
-      expect(
-        hexFromBytes(actual.bytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actual.bytes), hexFromBytes(expectedBytes));
     });
 
     test('Test case #2: Hkdf-Hmac-Sha256', () async {
@@ -97,19 +87,13 @@ void testHkdf() {
 
       // End of test vectors
 
-      final hkdf = Hkdf(
-        hmac: Hmac(Sha256()),
-        outputLength: length,
-      );
+      final hkdf = Hkdf(hmac: Hmac(Sha256()), outputLength: length);
       final actual = await hkdf.deriveKey(
         secretKey: SecretKey(secretKeyBytes),
         nonce: nonce,
         info: info,
       );
-      expect(
-        hexFromBytes(actual.bytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actual.bytes), hexFromBytes(expectedBytes));
     });
   });
 }

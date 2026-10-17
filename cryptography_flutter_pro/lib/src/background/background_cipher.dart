@@ -14,7 +14,7 @@
 
 import 'dart:async';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 import 'package:flutter/foundation.dart';
 
@@ -25,9 +25,9 @@ abstract class BackgroundCipher implements Cipher {
   /// Experimentally determined default [CryptographyChannelPolicy].
   static final CryptographyChannelPolicy defaultChannelPolicy =
       CryptographyChannelPolicy(
-    minLength: 10 * 1000,
-    maxLength: CryptographyChannelQueue.defaultInstance.maxConcurrentSize,
-  );
+        minLength: 10 * 1000,
+        maxLength: CryptographyChannelQueue.defaultInstance.maxConcurrentSize,
+      );
 
   /// Uses [compute] to do decryption in the background.
   @protected
@@ -89,19 +89,12 @@ abstract class BackgroundCipher implements Cipher {
     try {
       final cipherText = args[0] as Uint8List;
       final secretKeyBytes = args[1] as Uint8List;
-      secretKey = SecretKeyData(
-        secretKeyBytes,
-        overwriteWhenDestroyed: true,
-      );
+      secretKey = SecretKeyData(secretKeyBytes, overwriteWhenDestroyed: true);
       final nonce = args[2] as Uint8List;
       final macBytes = args[3] as Uint8List;
       final mac = Mac(macBytes);
       final aad = args[4] as Uint8List;
-      final secretBox = SecretBox(
-        cipherText,
-        nonce: nonce,
-        mac: mac,
-      );
+      final secretBox = SecretBox(cipherText, nonce: nonce, mac: mac);
       final result = await cipher.decrypt(
         secretBox,
         secretKey: secretKey,
@@ -129,10 +122,7 @@ abstract class BackgroundCipher implements Cipher {
     try {
       final clearText = args[0] as Uint8List;
       final secretKeyBytes = args[1] as Uint8List;
-      secretKey = SecretKeyData(
-        secretKeyBytes,
-        overwriteWhenDestroyed: true,
-      );
+      secretKey = SecretKeyData(secretKeyBytes, overwriteWhenDestroyed: true);
       final nonce = args[2] as Uint8List;
       final aad = args[3] as Uint8List;
       final secretBox = await cipher.encrypt(
@@ -168,11 +158,19 @@ mixin BackgroundCipherMixin implements BackgroundCipher {
     int keyStreamIndex = 0,
     Uint8List? possibleBuffer,
   }) async {
+    if (keyStreamIndex != 0) {
+      throw ArgumentError.value(
+        keyStreamIndex,
+        'keyStreamIndex',
+        '$runtimeType does not support key stream offsets',
+      );
+    }
     if (kIsWeb || !channelPolicy.matches(length: secretBox.cipherText.length)) {
       return await fallback.decrypt(
         secretBox,
         secretKey: secretKey,
         aad: aad,
+        possibleBuffer: possibleBuffer,
       );
     }
     final cipherText = secretBox.cipherText;
@@ -247,12 +245,20 @@ mixin BackgroundCipherMixin implements BackgroundCipher {
     int keyStreamIndex = 0,
     Uint8List? possibleBuffer,
   }) async {
+    if (keyStreamIndex != 0) {
+      throw ArgumentError.value(
+        keyStreamIndex,
+        'keyStreamIndex',
+        '$runtimeType does not support key stream offsets',
+      );
+    }
     if (kIsWeb || !channelPolicy.matches(length: clearText.length)) {
       return await fallback.encrypt(
         clearText,
         secretKey: secretKey,
         nonce: nonce,
         aad: aad,
+        possibleBuffer: possibleBuffer,
       );
     }
     nonce ??= newNonce();
@@ -303,10 +309,6 @@ mixin BackgroundCipherMixin implements BackgroundCipher {
       );
     }
 
-    return SecretBox(
-      cipherText,
-      nonce: nonce,
-      mac: Mac(macBytes),
-    );
+    return SecretBox(cipherText, nonce: nonce, mac: Mac(macBytes));
   }
 }

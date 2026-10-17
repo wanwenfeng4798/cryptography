@@ -12,39 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 
 import '../cipher.dart';
 
 void testAesCtr() {
   testCipher(
-    builder: () => AesCtr.with128bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
+    builder: () => AesCtr.with128bits(macAlgorithm: MacAlgorithm.empty),
+  );
+  testCipher(builder: () => AesCtr.with128bits(macAlgorithm: Hmac.sha256()));
+  testCipher(
+    builder: () => AesCtr.with192bits(macAlgorithm: MacAlgorithm.empty),
   );
   testCipher(
-    builder: () => AesCtr.with128bits(
-      macAlgorithm: Hmac.sha256(),
-    ),
+    builder: () => AesCtr.with256bits(macAlgorithm: MacAlgorithm.empty),
   );
-  testCipher(
-    builder: () => AesCtr.with192bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
-  );
-  testCipher(
-    builder: () => AesCtr.with256bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
-  );
-  testCipher(
-    builder: () => AesCtr.with256bits(
-      macAlgorithm: Hmac.sha256(),
-    ),
-  );
-  testCipher(
-    builder: () => AesCtr.with256bits(
-      macAlgorithm: Hmac.sha512(),
-    ),
-  );
+  testCipher(builder: () => AesCtr.with256bits(macAlgorithm: Hmac.sha256()));
+  testCipher(builder: () => AesCtr.with256bits(macAlgorithm: Hmac.sha512()));
 }

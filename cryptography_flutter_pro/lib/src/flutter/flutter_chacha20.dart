@@ -14,8 +14,8 @@
 
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 
 import '../../cryptography_flutter_pro.dart';
 import '../_internal.dart';
@@ -48,9 +48,9 @@ class FlutterChacha20 extends Chacha20 with FlutterCipherMixin {
     Chacha20? fallback,
     CryptographyChannelPolicy? channelPolicy,
     super.random,
-  })  : fallback = fallback ?? BackgroundChacha.poly1305Aead(),
-        channelPolicy = channelPolicy ?? FlutterCipher.defaultChannelPolicy,
-        super.constructor();
+  }) : fallback = fallback ?? BackgroundChacha.poly1305Aead(),
+       channelPolicy = channelPolicy ?? FlutterCipher.defaultChannelPolicy,
+       super.constructor();
 
   @override
   String get channelCipherName => 'CHACHA20_POLY1305_AEAD';

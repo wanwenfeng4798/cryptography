@@ -1,0 +1,28 @@
+name: cryptography_pro
+version: 2.9.2
+homepage: https://github.com/wanwenfeng4798/cryptography
+description:
+  Cryptographic algorithms for encryption, digital signatures, key agreement, authentication, and
+  hashing. AES, Chacha20, ED25519, and more. Cross-platform (mobile, desktop, JS, WASM).
+topics:
+ - crypto
+
+environment:
+  sdk: '>=3.11.0 <4.0.0'
+
+dependencies:
+  #
+  # Packages by Google:
+  #
+  collection: ^1.19.1
+  crypto: ^3.0.7
+  ffi: ^2.2.0
+  meta: ^1.19.0
+  typed_data: ^1.4.0
+
+dev_dependencies:
+  #
+  # Packages by Google:
+  #
+  lints: ^6.1.0
+  test: ^1.33.0

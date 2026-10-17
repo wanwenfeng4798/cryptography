@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -33,19 +33,13 @@ void testPbkdf2() {
         'bb c0 19 48 56 8e c3 05 75 49 ba b3 b1 a2 29 b7',
       );
 
-      final pbkdf2 = Pbkdf2.hmacSha256(
-        bits: bits,
-        iterations: iterations,
-      );
+      final pbkdf2 = Pbkdf2.hmacSha256(bits: bits, iterations: iterations);
       final secretKey = await pbkdf2.deriveKeyFromPassword(
         password: password,
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha256), 1 iteration', () async {
@@ -68,10 +62,7 @@ void testPbkdf2() {
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha256), 2 iterations', () async {
@@ -94,10 +85,7 @@ void testPbkdf2() {
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha256), 3 iterations', () async {
@@ -120,10 +108,7 @@ void testPbkdf2() {
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha384), 3 iterations', () async {
@@ -146,10 +131,7 @@ void testPbkdf2() {
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha512), 3 iterations', () async {
@@ -172,10 +154,7 @@ void testPbkdf2() {
         nonce: nonce,
       );
       final actualBytes = await secretKey.extractBytes();
-      expect(
-        hexFromBytes(actualBytes),
-        hexFromBytes(expectedBytes),
-      );
+      expect(hexFromBytes(actualBytes), hexFromBytes(expectedBytes));
     });
 
     test('deriveKey(...): Hmac(sha256), 10k iterations in 300ms', () async {

@@ -63,13 +63,17 @@ Future<void> expectFasterThanPureDart({
 
     if (i == 0) {
       if (kDebugMode) {
-        final baseline =
-            timeString(dartTime, sameUnitAs: flutterTime).padLeft(10);
+        final baseline = timeString(
+          dartTime,
+          sameUnitAs: flutterTime,
+        ).padLeft(10);
         final optimized = timeString(flutterTime).padLeft(10);
-        print('${'  $description:'.padRight(40)}\n'
-            '      ${relativeTime.toStringAsFixed(3)} * baseline\n'
-            '      optimized: $optimized\n'
-            '      baseline:  $baseline');
+        print(
+          '${'  $description:'.padRight(40)}\n'
+          '      ${relativeTime.toStringAsFixed(3)} * baseline\n'
+          '      optimized: $optimized\n'
+          '      baseline:  $baseline',
+        );
       }
     }
   }

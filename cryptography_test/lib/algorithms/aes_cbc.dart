@@ -12,16 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/test.dart';
 
 import '../cipher.dart';
 
 void testAesCbc() {
   testCipher<AesCbc>(
-    builder: () => AesCbc.with128bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
+    builder: () => AesCbc.with128bits(macAlgorithm: MacAlgorithm.empty),
     onEquality: (a, b) {
       expect(a.paddingAlgorithm, b.paddingAlgorithm);
     },
@@ -35,29 +33,13 @@ void testAesCbc() {
       expect(a.paddingAlgorithm, b.paddingAlgorithm);
     },
   );
+  testCipher(builder: () => AesCbc.with128bits(macAlgorithm: Hmac.sha256()));
   testCipher(
-    builder: () => AesCbc.with128bits(
-      macAlgorithm: Hmac.sha256(),
-    ),
+    builder: () => AesCbc.with192bits(macAlgorithm: MacAlgorithm.empty),
   );
   testCipher(
-    builder: () => AesCbc.with192bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
+    builder: () => AesCbc.with256bits(macAlgorithm: MacAlgorithm.empty),
   );
-  testCipher(
-    builder: () => AesCbc.with256bits(
-      macAlgorithm: MacAlgorithm.empty,
-    ),
-  );
-  testCipher(
-    builder: () => AesCbc.with256bits(
-      macAlgorithm: Hmac.sha256(),
-    ),
-  );
-  testCipher(
-    builder: () => AesCbc.with256bits(
-      macAlgorithm: Hmac.sha512(),
-    ),
-  );
+  testCipher(builder: () => AesCbc.with256bits(macAlgorithm: Hmac.sha256()));
+  testCipher(builder: () => AesCbc.with256bits(macAlgorithm: Hmac.sha512()));
 }

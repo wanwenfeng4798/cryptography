@@ -14,8 +14,8 @@
 
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:cryptography_flutter_pro/src/flutter/flutter_hmac.dart';
 import 'package:flutter/foundation.dart';
 
@@ -67,9 +67,7 @@ class FlutterCryptography extends BrowserCryptography {
       );
     }
     if (nonceLength == AesGcm.defaultNonceLength) {
-      final platformImpl = FlutterAesGcm(
-        secretKeyLength: secretKeyLength,
-      );
+      final platformImpl = FlutterAesGcm(secretKeyLength: secretKeyLength);
       if (platformImpl.isSupportedPlatform) {
         return platformImpl;
       }

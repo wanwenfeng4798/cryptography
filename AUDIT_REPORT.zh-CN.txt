@@ -1,0 +1,271 @@
+最终修复结果
+================
+用户已授权全部修复。F01–F14、R01–R07 共 21 项均已落实；没有保留待选择的代码修改。
+
+已实施
+- F01/F02/F03/F07：RSA、EC、Simple 私钥拥有独立可擦除缓冲区；复制互不影响，销毁后禁止读取私密数据；公开密钥仍可读取；SecretKeyData 比较不再因另一方已销毁而异常。
+- F04/F05/F06：标准 JWK 字段、完整内容相等性、JSON/builder 往返；兼容读取旧格式并标准化输出。
+- F08/R01/R02：HKDF 限长和精确块数；移除 PBKDF2 无用分配；补充空盐和 WebCrypto HMAC 互通修复。
+- F09：AEAD 明确拒绝非零密钥流偏移，向 fallback 转发 possibleBuffer，覆盖正常和平台不可用回退分支。
+- F10/F11/F14：Android 一次认证解密、标准 SecretKeySpec 算法名、Provider 成功回调和失败重试、无符号固定宽度 EC 导入/导出；P-256 使用标准 secp256r1 名称。
+- F12：Apple 原生 ECDSA 仅选择默认曲线/哈希组合，其他组合明确要求兼容 fallback，避免静默使用错误哈希。
+- F13：EC seed 接口保留 seed 并委托 deterministic fallback；无实现时明确抛出 UnsupportedError，避免随机生成。
+- R03：iOS/macOS 共用 darwin/ 下同一 Swift 源码，使用 sharedDarwinSource，同时提供 CocoaPods/SwiftPM 清单。
+- R04：移除重复 Swift 文件、不可达 RSA/Android ECDSA 分支、无效 catch、过时 TODO/注释、未用 Android security-crypto 和 Mockito 依赖。
+- R05：宿主测试显式测试 Flutter 适配器；修复未注册插件时 HMAC/PBKDF2 误判原生能力；性能测试使用 benchmark 标签单独运行。CI 新增 Android JVM/设备、iOS/macOS 原生回归，Apple 同时配置 SwiftPM 与 CocoaPods 路径；格式检查只检查且阻断失败。
+- R06：拒绝 X25519 全零共享秘密；额外修复浏览器生成 X25519 密钥对误标为 Ed25519 的问题。
+- R07：队列配置与锁生命周期校验，FIFO 顺序、容量等于上限的处理一致，超大单请求独占执行。
+- 补齐示例 lint 开发依赖；统一应用 Dart formatter，使新增严格格式检查可以通过。较多 Dart 文件只有机械格式变动。
+
+最终本地验证
+- 全仓库 dart analyze：No issues found。
+- dart format 检查：220 文件，0 处待格式化；git diff --check 通过。
+- cryptography：VM 504 通过；Chrome JavaScript 575 通过；Chrome WebAssembly 575 通过。
+- jwk：VM/JS/WASM 各 15 通过。
+- cryptography_test：VM 3340 通过。
+- Flutter 插件：9 项通道、队列和回退回归通过。
+- Flutter 测试项目：1439 项功能测试通过；48 项性能基准保留并单独打标签，不作为共享 CI 机器的性能门槛。
+- Android：5 项 JVM 回归通过，含真实 MethodChannel 入口加解密、EC 高位私钥/坐标交换和 Provider 回调；最终 assembleDebug 成功。
+- Apple：共享 Swift 源码的 macOS 与 iOS Simulator 编译检查通过；在 macOS 本机实际运行插件方法，AES-GCM/ChaChaPoly 共 10 个长度/算法组合往返与 10 个篡改拒绝通过，P-256 ECDH/ECDSA 通过。
+- SwiftPM：通过 Flutter 生成的真实依赖图并注入应用通常提供的 Flutter.framework 搜索路径，构建成功。
+- CocoaPods podspec Ruby 语法和隐私清单格式检查通过；工作流 YAML 解析通过。
+
+验证边界
+- 新增的 GitHub 托管 CI 尚未触发运行。
+- 本机没有运行 Android 模拟器/移动真机测试；设备测试入口已加入仓库和 CI。
+- iOS 完整 App/模拟器测试、CocoaPods 完整 App 构建未在本机执行；macOS 完整 Runner 构建输出仅到引擎下载，未把它记为成功。上述 Apple 源码、插件包构建与 CryptoKit 方法调用已有独立本地验证。
+- 未在最低 Dart 3.11 版本运行；当前本机为 Flutter 3.47.7 / Dart 3.13.5。
+- 密钥缓冲区擦除不保证 Dart VM/GC 或调用者历史副本的物理清除。
+
+兼容性变化
+- Jwk.keyOps 现在为 List<String>?，x5c 为 List<List<int>>?（每项为一张 DER 证书），新 JSON 使用 oct、key_ops 字符串数组和普通 base64 证书数组。旧 JSON 输入仍可读取。
+- 私钥构造函数复制输入。销毁对象清除其拥有的缓冲区，不修改调用者传入的原始数组；RSA 私钥销毁后读取/复制/提取会报错。
+- 不支持的 ECDSA 哈希、EC seed、AEAD 偏移及 X25519 全零结果现在明确报错。
+- 最低 SDK 已提高；Flutter SDK 固定的 7 个间接依赖保持可解版本，不强行覆盖 SDK 限制。
+- 未发布包、未提交 Git commit；所有结果可在当前工作区直接审阅。
+
+原始核查记录（修复前）
+======================
+代码核查及依赖升级报告
+日期：2026-10-16（Asia/Shanghai）
+项目：/Users/mdw/Downloads/cryptography
+
+范围与修改边界
+以下为修复前的核查记录，保留用于追踪问题来源；当前处理结果见文首。
+本报告为代码审查、现有测试和定向复现结果，并非完整密码学安全认证。
+覆盖核心 Dart 实现、WebCrypto 适配、Flutter 通道/后台实现、Android Kotlin、Apple Swift、JWK 和测试/CI。
+Apple 原生运行行为尚未在 iOS/macOS 设备验证；标为“源码确认”的事项不冒充设备实测。
+
+依赖升级
+- test：cryptography/jwk 1.33.0；cryptography_test 约束 ^1.31.1，纯 Dart 实际解析 1.33.0，Flutter 实际解析 1.31.1。
+- lints：6.1.0；flutter_lints：6.0.0；cupertino_icons：2.0.0。
+- collection：统一 1.19.1；crypto：统一 3.0.7；typed_data：统一 1.4.0。
+- ffi 2.2.0、meta 1.19.0 已是最新，保留。
+- 仓库内 cryptography 引用统一 ^2.9.0，保持现有本地 path overrides。
+- AGP 9.4.0 -> 9.4.1；Kotlin 声明 2.4.10 -> 2.4.21。
+- Gradle 9.7.1 -> 9.8.1；NDK 30.0.16138531 -> 30.0.16248370。
+- Mockito 5.0.0 -> 5.24.0；androidx.security:security-crypto 1.1.0 已为最新。
+- actions/checkout -> v7.0.1；dart-lang/setup-dart -> v1.8.1；setup-chrome -> v2.2.0。
+- 发布工作流固定提交更新至 setup-dart v1.8.1 对应 6afc89df92d6eb3834022f73cd65adc8cdfcb92d。
+- 纯 Dart 包/示例最低 Dart 3.11；Flutter 包/示例最低 Dart 3.12、Flutter 3.47.7；CI 同步。
+  这会提高对下游用户的最低 SDK 要求。原 Flutter 3.44.0 固定 meta 1.18.0，无法满足核心 meta ^1.19.0，故使用已验证的 3.47.7。
+- cryptography/example 原 SDK <3.0.0 无法使用本仓库 Dart 3 主包，已随依赖修正。
+
+不能全部强制升至上游最新版的依赖
+Flutter 3.47.7 固定 test_api 0.7.12；最新版 test 1.33.0 要求 0.7.15。
+集成项目通过正常解析保留：
+  test 1.31.1（上游 1.33.0）
+  test_api 0.7.12（上游 0.7.15）
+  test_core 0.6.18（上游 0.6.21）
+  analyzer 13.3.0（上游 14.5.0）
+  _fe_analyzer_shared 103.0.0（上游 109.0.0）
+  package_config 2.2.0（上游 3.0.0）
+  material_color_utilities 0.13.0（上游 0.13.1）
+这些包均已达当前 SDK/依赖图可解析上限。没有通过 dependency_overrides 强制覆盖 SDK 固定版本。
+纯 Dart 核心 pub outdated 返回空列表；共享测试包除本地 override 外没有过期版本。
+pubspec.lock 按仓库既有 .gitignore 规则仅在本地生成，未纳入提交。
+
+升级阶段初始验证结果（修复前）
+- 7 个包/示例依赖解析成功。
+- 7 个包/示例静态分析通过。
+- cryptography：VM 483 通过/1 失败；Chrome JS 554 通过/1 失败；Chrome WASM 554 通过/1 失败。
+  三个平台均为同一个 F03：test/secret_key_test.dart 的 destroy() 测试。
+- cryptography_test：VM 3340 通过。
+- jwk：VM 11 通过。现有用例未覆盖下列 JWK 问题，不能据此认为实现完全正确。
+- Flutter 测试项目：1481 通过/6 失败；失败均为未注册平台插件的宿主测试中仍断言应选用 Flutter/Background 实现。
+  此结果只证明宿主/后台测试行为，不能替代 Android/iOS 原生集成测试。
+- 临时 Flutter 定向复现：1 通过，确认 F09 和 R07。复现文件已删除，正式代码没有改动。
+- Android 示例已在最终 NDK 30.0.16248370 配置下成功构建 debug APK；Git diff 空白检查通过。
+- 未运行 GitHub 托管工作流、iOS/macOS 原生构建、移动设备集成测试；未在最低 Dart 3.11 实机验证。
+
+原始功能/安全问题（F01–F14 均已处理）
+优先级 P1=建议优先处理；P2=常规正确性问题。未经复现的原生行为明确注明。
+
+F01 [P1，已复现] RSA 私钥销毁无效
+位置：cryptography/lib/src/cryptography/rsa_key_pair.dart:96、117、134。
+hasBeenDestroyed 恒为 false，继承 destroy() 改变的状态被遮蔽；d/p/q 等为普通 List。
+复现：destroy() 后状态仍为 false，d 仍可读取，extract() 仍成功。
+影响：调用者以为已撤销/清除的私钥仍可使用；copy() 也共享原始数组。
+建议：私密参数采用独立敏感缓冲区，正确实现销毁、复制和访问状态；保留公开参数访问。
+
+F02 [P1，已复现] EC copy() 与原私钥共享生命周期
+位置：cryptography/lib/src/cryptography/ec_key_pair.dart:124。
+copy() 把 d getter 返回的 SensitiveBytes 直接传给新对象，形成嵌套包装。
+复现：copy = original.copy(); original.destroy(); 此后读取 copy.d 抛异常。
+影响：副本不独立，销毁原对象会让仍使用中的副本失效，副本状态还可能不准确。
+建议：复制私钥字节，并测试双向销毁互不影响。
+
+F03 [P2，已复现，现有测试失败] SecretKeyData 相等比较不对称并抛异常
+位置：cryptography/lib/src/cryptography/secret_key.dart:177。
+只检查 this.hasBeenDestroyed，随后读取 other.bytes。
+复现：live == destroyed 抛 StateError；destroyed == live 返回 false。
+影响：普通比较及集合/测试匹配可能异常；VM/JS/WASM 均失败。
+建议：比较前检查双方销毁状态，明确相等和 hash 的约定，并补充两种比较顺序测试。
+
+F04 [P1，已复现] JWK 与标准字段格式不兼容
+位置：jwk/lib/jwk.dart:119、140、472、515、542、641。
+key_ops 被建模为 String，标准要求字符串数组；x5c 被建模为单段 bytes 并 base64url 编码，标准要求普通 base64 证书字符串数组；对称密钥使用大写 OCT，标准为小写 oct。
+复现：标准 key_ops/x5c 数组发生类型错误；kty=oct 的 toSecretKey() 抛 StateError。
+影响：与外部 JWKS/JOSE 实现互通失败。
+建议：按 RFC 7517/7518 修正类型、编码与大小写，考虑兼容读取旧 OCT 格式；该项可能涉及公开 API 变更。
+参考：https://www.rfc-editor.org/rfc/rfc7517.html#section-4.3
+https://www.rfc-editor.org/rfc/rfc7517.html#section-4.7
+https://www.rfc-editor.org/rfc/rfc7518.html#section-6.4
+
+F05 [P1，已复现] Jwk 相等比较遗漏密钥并按数组身份比较
+位置：jwk/lib/jwk.dart:186。
+operator == 完全漏掉 k，其他 List 字段使用 == 而非内容比较。
+复现：Jwk(kty:'OCT',k:[1]) == Jwk(kty:'OCT',k:[2]) 为 true；分别构造的相同 x 字节比较为 false。
+影响：密钥去重、缓存及 JwkSet 比较可能得到错误结果。
+建议：补上全部字段，字节内容比较与 hash 保持一致；私密字段采用适当比较方式。
+
+F06 [P2，已复现] JWK 转换丢字段
+位置：jwk/lib/jwk.dart:210、490。
+toBuilder() 未复制 keyOps；fromJson() 没有读取 cty。
+复现：Jwk(keyOps:'encrypt').toBuilder().build().keyOps 为 null；cty JSON 往返后为 null。
+建议：补全字段传递，为每个字段建立往返测试；保持现有 cty 扩展字段语义。
+
+F07 [P1，源码确认+EC缓冲区复现] EC/简单私钥没有按文档覆盖内存
+位置：cryptography/lib/src/cryptography/ec_key_pair.dart:84；simple_key_pair.dart:70；sensitive_bytes.dart:33、74。
+SimpleKeyPairData/EcKeyPairData 包装私钥时使用默认 overwriteWhenDestroyed=false。
+复现：EC 构造时传入 [7,8]，destroy() 后原数组仍为 [7,8]。
+影响：对象引用被丢弃，但已有缓冲区/外部别名仍保存私钥；与“覆盖为零”的文档承诺不符。
+建议：先建立独立、可写、可擦除的私钥缓冲区，销毁时覆盖；不能保证 VM/GC 中所有历史副本都被物理擦除。
+
+F08 [P2，已复现] HKDF 未限制最大输出长度
+位置：cryptography/lib/src/dart/hkdf.dart:54、57、63。
+缺少 outputLength <= 255 * HashLen 校验，计数器通过 0xFF 截断。
+复现：SHA-256 请求 8161 字节仍成功，超过规定 8160 字节上限。
+建议：统一校验长度范围，防止生成不符合 RFC 的结果，并与 WebCrypto 行为对齐。
+参考：https://www.rfc-editor.org/rfc/rfc5869.html#section-2.3
+
+F09 [P2，Flutter复现] 包装层静默忽略 keyStreamIndex
+位置：cryptography_flutter_pro/lib/src/flutter/flutter_cipher.dart:248、302；lib/src/background/background_cipher.dart:164、242。
+encrypt/decrypt 声明了 keyStreamIndex、possibleBuffer，但没有完整转发。
+复现：DartChacha20.poly1305Aead 在 keyStreamIndex=16 时拒绝；BackgroundChacha 与 FlutterChacha20 静默接受并按 0 处理。
+影响：参数语义和校验随实现变化。possibleBuffer 丢失主要是性能机会，不保证调用者提供的缓冲区必被复用。
+建议：对不支持的参数显式校验，支持的参数正确转发；不要把 AEAD 改成任意偏移加密。
+
+F10 [P1，源码确认，待Android运行复现] Android 解密丢弃 update() 返回值
+位置：cryptography_flutter_pro/android/src/main/kotlin/dev/dint/cryptography_flutter_pro/CryptographyFlutterPlugin.kt:180。
+cipher.update(cipherText) 返回值被忽略，只把 doFinal(mac) 的输出当完整明文。
+影响：当 JCA provider 提前输出明文时，结果被截断，触发 Dart 长度检查或解密失败；并非每个 provider 都会触发。
+建议：使用一次 doFinal(cipherText+mac)，或正确累积输出，认证完成后再交给调用方。
+参考：https://docs.oracle.com/en/java/javase/17/docs/api/java.base/javax/crypto/Cipher.html#update(byte[])
+
+F11 [P2，源码确认] Android 添加 Provider 成功后不返回结果
+位置：cryptography_flutter_pro/android/src/main/kotlin/dev/dint/cryptography_flutter_pro/CryptographyFlutterPlugin.kt:114；lib/android.dart:27。
+成功执行 Security.addProvider 后没有 result.success，Dart 又缓存该 Future。
+影响：合法 Provider 添加成功时 await 长期悬挂；现有测试只覆盖不存在的类，未覆盖成功路径。
+建议：成功分支明确回复，并决定失败 Future 是否应从缓存移除以允许重试。
+
+F12 [P1，源码确认，待Apple运行复现] ECDSA hashAlgorithm 未影响原生签名
+位置：cryptography_flutter_pro/lib/src/flutter/flutter_ecdsa.dart:31、154；ios/.../CryptographyFlutterPlugin.swift:446（macOS同样逻辑）。
+Dart 接受可选哈希算法，通道仅传 curve/data/key；Swift signature(for: Data) 按曲线默认哈希处理。
+影响：使用非默认哈希组合时，实际算法与调用方声明不一致，与其他实现互验可能失败。
+建议：正确传递并使用所选 digest，或对不支持组合明确拒绝/回退；增加跨平台互验用例。
+
+F13 [P2，源码确认] ECDH/ECDSA seed 接口没有保留 seed 语义
+位置：cryptography_flutter_pro/lib/src/flutter/flutter_ecdh.dart:112、143；flutter_ecdsa.dart:115、146。
+原生分支调用 *.newKeyPairFromSeed，但 Kotlin/Swift 方法分发表未实现；fallback 分支直接 newKeyPair()，忽略 seed。
+影响：原生路径会报未实现；给定 seed 的调用可能生成随机密钥。
+建议：明确算法的 seed 支持范围；委托真正支持的实现，或一致抛出不支持，不能静默随机生成。
+
+F14 [P1，源码确认，待Android互通复现] Android EC 参数按有符号整数处理
+位置：cryptography_flutter_pro/android/src/main/kotlin/dev/dint/cryptography_flutter_pro/CryptographyFlutterPlugin.kt:293、324、330、389、433。
+EC 参数使用 BigInteger(bytes)，但外部 JWK/WebCrypto 的 EC 坐标和私钥是无符号字节；最高位为 1 时被解释为负数。
+生成密钥又用 toByteArray() 导出有符号表示，可能多出前导 0，长度不能保证是曲线规定长度。
+影响：Android 与标准固定宽度密钥互通可能失败；目前没有设备运行证明所有曲线/provider 的触发范围。
+建议：输入按 BigInteger(1, bytes) 解码，输出统一为曲线规定的固定宽度无符号字节，增加高位为 1 和前导 0 的互通向量。
+
+原始优化/冗余（R01–R07 均已处理）
+
+R01 [低风险，源码确认] PBKDF2 多余分配
+位置：cryptography/lib/src/dart/pbkdf2.dart:67。
+nonceAndBlockIndex 分配并复制 nonce 后从未使用；后面另建 firstInput 做实际工作。
+建议：删除该无效分配及复制，不改变算法计算。
+
+R02 [性能，源码确认] HKDF 整块长度多计算一次 HMAC
+位置：cryptography/lib/src/dart/hkdf.dart:55、57。
+n=outputLength~/hashLength 且循环 i<=n，长度为 HashLen 整倍数时多算一块再截断为 0 字节。
+建议：按 ceil(L/HashLen) 精确循环；与 F08 可合并修改并用已知向量验证。
+
+R03 [维护性] iOS/macOS Swift 主体重复
+位置：cryptography_flutter_pro/{ios,macos}/cryptography_flutter_pro/Sources/cryptography_flutter_pro/CryptographyFlutterPlugin.swift。
+两份约 600 行算法/通道逻辑基本相同，主要差别是 Flutter 模块、平台导入和 registrar messenger。
+建议：提取共享核心并保留平台薄适配层，必须同时验证 CocoaPods 与 SwiftPM 打包路径。
+
+R04 [清理] 未用依赖、不可达分支和过时注释
+- android/build.gradle.kts:74 security-crypto 未被 Kotlin 源码使用，当前实现使用 JCA；可评估移除。
+  官方 1.1.0 已弃用其 API，不必只为升级而新增替代依赖。
+- FlutterRsaPss/FlutterRsaSsaPkcs1v15 的 isSupportedPlatform 恒 false，保留整套不可达原生分支；相关 Dart RSA 实现本身也未实现，不能简单宣称可用。
+- FlutterEcdsa 仅支持 Cupertino，却保留 Android 序列化分支（FlutterEcdh 已启用 Android，不能删除其 Android 分支）；Android X25519 分发表把 sharedSecretKey 写成 X25519.sign，当前因平台门控不可达。
+- Kotlin 未使用的 Build/RequiresApi、localX/localY/x/y、dartMacAlgo；目前没有 Android 单元测试源码，却配置 Mockito/kotlin-test/JUnitPlatform。可确认后删除相应测试依赖。
+- poly1305.dart:27 文档仍称 BigInt 慢实现，实际已用整数数组；TODO 标记与现有实现不一致。
+- FlutterEcdsa.verify 中 catch PlatformException 后仅 rethrow，可直接删去该包装。
+建议：逐项清理；不要直接删除公开 API，先确认兼容要求。
+参考：https://developer.android.com/jetpack/androidx/releases/security#1.1.0
+
+R05 [测试/CI] 原生行为覆盖不足且测试入口假设不一致
+位置：.github/workflows/dart.yml:162；cryptography_flutter_integration_test/test/main_test.dart:32、39。
+CI 无 Flutter 原生集成测试；宿主测试未注册插件却断言选择原生实现，实测失败 6 项；现有 JWK 11 项未覆盖标准数组/相等/销毁等边界。
+格式检查 continue-on-error 且 dart format 可能修改 CI 检出内容。
+建议：分离宿主、平台通道 mock、真机测试；补 Android/Apple 互操作测试；格式检查改只检查并阻断。变更由用户选择后进行。
+
+R06 [安全加固，已复现，但不将其直接定性为协议漏洞] X25519 接受全零共享秘密
+位置：cryptography/lib/src/dart/x25519.dart:79。
+对方传入全零公钥时，当前纯 Dart 实现返回全零共享秘密。
+影响取决于上层协议是否已校验公钥/共享秘密及认证；这是需要明确的 contributory behavior 策略，不意味着任意正常 X25519 都不安全。
+建议：评估默认拒绝全零结果，或提供明确策略并与 WebCrypto/CryptoKit 行为对齐；需要考虑兼容性。
+
+R07 [健壮性，Flutter复现] 通道队列参数和锁生命周期缺少约束
+位置：cryptography_flutter_pro/lib/src/cryptography_channel_queue.dart:41、55、138。
+maxConcurrentRequests=0 仍允许首个请求；负 size/非法容量不校验；公开 lock/unlock 没有阻止重复调用，可能破坏计数。
+锁调度总大小等于上限时用 >= 拦住，而首次检查用 >，边界不一致。
+建议：校验配置，明确超大单请求策略，并为锁建立“未获取/持有/已释放”状态；默认合法配置下尚无死锁复现。
+
+复现输出（使用合成字节，无真实密钥）
+X25519 zero public key produces all-zero secret: true
+JWK different secret keys compare equal: true
+JWK equal public byte values compare equal: false
+key_ops: type 'List<String>' is not a subtype of type 'String' in type cast
+x5c: type 'List<String>' is not a subtype of type 'String' in type cast
+standard lowercase oct: Bad state: Not a secret key (kty: oct)
+cty roundtrip: null
+keyOps builder roundtrip: null
+RSA after destroy: destroyed=false, private=[2], extract=RsaKeyPairData(...)
+EC original raw bytes after destroy: [7, 8]
+EC copy private after original destroy: Unsupported operation: The bytes have been destroyed
+live == destroyed key: Bad state: Secret key has been destroyed: SecretKeyData(...)
+HKDF SHA256 accepts >255 blocks: 8161
+
+Flutter 定向复现输出：
+00:00 +0: loading /Users/mdw/Downloads/cryptography/cryptography_flutter_pro/audit_probe_test.dart
+00:00 +0: audit parameter forwarding and queue validation
+Direct rejects invalid keyStreamIndex=true; Background accepts it
+Flutter wrapper also accepts invalid keyStreamIndex
+Background ChaCha20 ignores possibleBuffer: true
+Queue admits request with maxConcurrentRequests=0: 1
+00:00 +1: All tests passed!
+
+以上原始问题已全部处理，详情与兼容性说明见文首及各包 CHANGELOG.md。

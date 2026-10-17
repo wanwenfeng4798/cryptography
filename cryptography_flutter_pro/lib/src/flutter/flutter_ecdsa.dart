@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:flutter/services.dart';
+import 'dart:typed_data';
+
+import 'package:cryptography_pro/cryptography.dart';
 
 import '../../cryptography_flutter_pro.dart';
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
 
-/// [Ecdsa] that uses platform APIs in Android, iOS, and Mac OS X.
+/// [Ecdsa] that uses platform APIs in iOS and macOS.
+/// Only the default hash for each curve is supported by the native adapter:
+/// SHA-256 for P-256, SHA-384 for P-384, SHA-512 for P-521.
+/// Other combinations require an explicit [fallback].
 class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
   @override
   final Ecdsa? fallback;
@@ -38,28 +42,32 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
     this.hashAlgorithm, {
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p256,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p256,
+       super.constructor();
 
   /// ECDSA-P384
   FlutterEcdsa.p384(
     this.hashAlgorithm, {
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p384,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p384,
+       super.constructor();
 
   /// ECDSA-P521
   FlutterEcdsa.p521(
     this.hashAlgorithm, {
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p521,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p521,
+       super.constructor();
 
   @override
   bool get isSupportedPlatform =>
-      FlutterCryptography.isPluginPresent && isCupertino;
+      FlutterCryptography.isPluginPresent &&
+      isCupertino &&
+      ((keyPairType == KeyPairType.p256 && hashAlgorithm is Sha256) ||
+          (keyPairType == KeyPairType.p384 && hashAlgorithm is Sha384) ||
+          (keyPairType == KeyPairType.p521 && hashAlgorithm is Sha512));
 
   String get _curveName {
     switch (keyPairType) {
@@ -77,112 +85,46 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
   @override
   Future<EcKeyPair> newKeyPair() async {
     if (isSupportedPlatform) {
-      final result = await invokeMethod(
-        'Ecdsa.newKeyPair',
-        {
-          if (isAndroid) 'androidProvider': androidCryptoProvider,
-          'curve': keyPairType.name,
-        },
-      );
-      final der = result['der'] as Uint8List?;
-      if (der != null) {
-        // if (keyPairType==KeyPairType.p384) {
-        //   throw StateError('public key DER:\n${hexFromBytes(generatedPublicDer!)}');
-        // }
-        return EcKeyPairData.parseDer(
-          der,
-          type: keyPairType,
-        );
-      }
-      final d = result['d'] as Uint8List;
-      final x = result['x'] as Uint8List;
-      final y = result['y'] as Uint8List;
-      return EcKeyPairData(
-        d: d,
-        x: x,
-        y: y,
+      final result = await invokeMethod('Ecdsa.newKeyPair', {
+        'curve': keyPairType.name,
+      });
+      return EcKeyPairData.parseDer(
+        result['der'] as Uint8List,
         type: keyPairType,
       );
     }
     final fallback = this.fallback;
     if (fallback == null) {
-      throw UnsupportedError('Unsupported and no fallback implementation');
+      throw UnsupportedError(
+        'Native ECDSA is unavailable for $keyPairType / $hashAlgorithm; provide a compatible fallback',
+      );
     }
     return fallback.newKeyPair();
   }
 
   @override
   Future<EcKeyPair> newKeyPairFromSeed(List<int> seed) async {
-    if (isSupportedPlatform) {
-      final result = await invokeMethod(
-        'Ecdsa.newKeyPairFromSeed',
-        {
-          if (isAndroid) 'androidProvider': androidCryptoProvider,
-          'curve': _curveName,
-          'seed': asUint8List(seed),
-        },
-      );
-      final der = result['der'] as Uint8List?;
-      if (der != null) {
-        return EcKeyPairData.parseDer(
-          der,
-          type: keyPairType,
-        );
-      }
-      final d = result['d'] as Uint8List;
-      final x = result['x'] as Uint8List;
-      final y = result['y'] as Uint8List;
-      return EcKeyPairData(
-        d: d,
-        x: x,
-        y: y,
-        type: keyPairType,
-      );
-    }
     final fallback = this.fallback;
     if (fallback == null) {
-      throw UnsupportedError('Unsupported and no fallback implementation');
+      throw UnsupportedError(
+        'Platform ECDSA does not support deterministic key generation',
+      );
     }
-    return await fallback.newKeyPair();
+    return fallback.newKeyPairFromSeed(seed);
   }
 
   @override
-  Future<Signature> sign(
-    List<int> message, {
-    required KeyPair keyPair,
-  }) async {
+  Future<Signature> sign(List<int> message, {required KeyPair keyPair}) async {
     if (isSupportedPlatform) {
       final keyPairData = await keyPair.extract();
-      if (keyPairData is! EcKeyPairData) {
-        throw ArgumentError.value(
-          keyPairData,
-          'keyPair',
-        );
+      if (keyPairData is! EcKeyPairData || keyPairData.type != keyPairType) {
+        throw ArgumentError.value(keyPairData, 'keyPair');
       }
-      Map result;
-      if (isCupertino) {
-        result = await invokeMethod(
-          'Ecdsa.sign',
-          {
-            if (isAndroid) 'androidProvider': androidCryptoProvider,
-            'curve': _curveName,
-            'data': Uint8List.fromList(message),
-            'der': keyPairData.toDer(),
-          },
-        );
-      } else {
-        result = await invokeMethod(
-          'Ecdsa.sign',
-          {
-            if (isAndroid) 'androidProvider': androidCryptoProvider,
-            'curve': _curveName,
-            'data': Uint8List.fromList(message),
-            'd': asUint8List(keyPairData.d),
-            'x': asUint8List(keyPairData.x),
-            'y': asUint8List(keyPairData.y),
-          },
-        );
-      }
+      final result = await invokeMethod('Ecdsa.sign', {
+        'curve': _curveName,
+        'data': asUint8List(message),
+        'der': keyPairData.toDer(),
+      });
       final error = result['error'] as String?;
       if (error != null) {
         throw StateError(
@@ -195,53 +137,26 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
     }
     final fallback = this.fallback;
     if (fallback == null) {
-      throw UnsupportedError('Unsupported and no fallback implementation');
+      throw UnsupportedError(
+        'Native ECDSA is unavailable for $keyPairType / $hashAlgorithm; provide a compatible fallback',
+      );
     }
-    return await fallback.sign(
-      message,
-      keyPair: keyPair,
-    );
+    return await fallback.sign(message, keyPair: keyPair);
   }
 
   @override
   Future<bool> verify(List<int> message, {required Signature signature}) async {
     if (isSupportedPlatform) {
       final publicKey = signature.publicKey;
-      if (publicKey is! EcPublicKey) {
-        throw ArgumentError.value(
-          signature,
-          'signature',
-        );
+      if (publicKey is! EcPublicKey || publicKey.type != keyPairType) {
+        throw ArgumentError.value(signature, 'signature');
       }
-      Map result;
-      if (isCupertino) {
-        try {
-          result = await invokeMethod(
-            'Ecdsa.verify',
-            {
-              if (isAndroid) 'androidProvider': androidCryptoProvider,
-              'curve': _curveName,
-              'data': asUint8List(message),
-              'signature': asUint8List(signature.bytes),
-              'der': publicKey.toDer(),
-            },
-          );
-        } on PlatformException {
-          rethrow;
-        }
-      } else {
-        result = await invokeMethod(
-          'Ecdsa.verify',
-          {
-            if (isAndroid) 'androidProvider': androidCryptoProvider,
-            'curve': _curveName,
-            'data': asUint8List(message),
-            'signature': asUint8List(signature.bytes),
-            'x': asUint8List(publicKey.x),
-            'y': asUint8List(publicKey.y),
-          },
-        );
-      }
+      final result = await invokeMethod('Ecdsa.verify', {
+        'curve': _curveName,
+        'data': asUint8List(message),
+        'signature': asUint8List(signature.bytes),
+        'der': publicKey.toDer(),
+      });
       final error = result['error'];
       if (error != null) {
         throw StateError(
@@ -252,11 +167,10 @@ class FlutterEcdsa extends Ecdsa implements PlatformCryptographicAlgorithm {
     }
     final fallback = this.fallback;
     if (fallback == null) {
-      throw UnsupportedError('Unsupported and no fallback implementation');
+      throw UnsupportedError(
+        'Native ECDSA is unavailable for $keyPairType / $hashAlgorithm; provide a compatible fallback',
+      );
     }
-    return await fallback.verify(
-      message,
-      signature: signature,
-    );
+    return await fallback.verify(message, signature: signature);
   }
 }

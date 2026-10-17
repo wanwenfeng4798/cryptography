@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "dev.dint.cryptography_flutter_pro_example"
     compileSdk = 37
-    ndkVersion = "30.0.16138531"
+    ndkVersion = "30.0.16248370"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

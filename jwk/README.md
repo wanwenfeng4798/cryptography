@@ -3,7 +3,7 @@
 
 # Overview
 JWK (JSON Web Key) encoding and decoding. Designed to be used with
-[package:cryptography](https://pub.dev/packages/cryptography).
+[package:cryptography_pro](https://pub.dev/packages/cryptography_pro).
 
 Licensed under the [Apache License 2.0](LICENSE).
 
@@ -11,14 +11,14 @@ Licensed under the [Apache License 2.0](LICENSE).
 In _pubspec.yaml_
 ```yaml
 dependencies:
-  cryptography: ^2.7.0
-  jwk: ^0.2.4
+  cryptography_pro: ^2.7.0
+  jwk: ^0.2.5
 ```
 
 # Examples
 ## Encoding KeyPair
 ```dart
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:jwk/jwk.dart';
 
 Future<void> main() async {
@@ -34,7 +34,7 @@ import 'package:jwk/jwk.dart';
 
 void main() {
   final jwk = Jwk.fromJson({
-    'kty': 'OCT',
+    'kty': 'oct',
     'alg': 'A128KW',
     'k': 'GawgguFyGrWKav7AX4VKUg',
   });

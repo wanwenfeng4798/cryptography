@@ -1,4 +1,4 @@
-[![Pub Package](https://img.shields.io/pub/v/cryptography.svg)](https://pub.dev/packages/cryptography)
+[![Pub Package](https://img.shields.io/pub/v/cryptography_pro.svg)](https://pub.dev/packages/cryptography_pro)
 [![Github Actions CI](https://github.com/wanwenfeng4798/cryptography/workflows/Dart%20CI/badge.svg)](https://github.com/wanwenfeng4798/cryptography/actions?query=workflow%3A%22Dart+CI%22)
 
 # Overview
@@ -9,7 +9,7 @@ Open-sourced under the [Apache License 2.0](LICENSE).
 Maintained by [terrier989](https://github.com/terrier989). Licensed under the [Apache License 2.0](LICENSE).
 
 ## Packages
-  * [cryptography](cryptography)
+  * [cryptography_pro](cryptography_pro)
     * Cryptography API for Dart / Flutter.
     * Contains cryptographic algorithm implementations written in pure Dart.
     * Contains cryptographic algorithm implementations that use Web Cryptography API in browsers.
@@ -19,7 +19,7 @@ Maintained by [terrier989](https://github.com/terrier989). Licensed under the [A
   * [cryptography_flutter_integration_test](cryptography_flutter_integration_test)
     * Integration test project for "cryptography_flutter_pro".
   * [cryptography_test](cryptography_flutter_pro)
-    * Cross-platform tests. Note that "cryptography" and "cryptography_flutter_integration_test"
+    * Cross-platform tests. Note that "cryptography_pro" and "cryptography_flutter_integration_test"
       contain more tests than just these.
   * [jwk](jwk)
     * JWK (JSON Web Key) encoding / decoding.

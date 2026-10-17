@@ -33,7 +33,7 @@
 /// ```
 library;
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:cryptography_test/algorithms/argon2.dart';
 import 'package:test/scaffolding.dart';
 

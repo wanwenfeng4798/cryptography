@@ -18,8 +18,8 @@
 /// See [testKeyExchangeAlgorithm].
 library;
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:test/test.dart';
 
 import 'hex.dart';
@@ -110,39 +110,35 @@ void testKeyExchangeAlgorithm({
       );
     });
 
-    test('sharedSecretKey(...): both parties compute the same secret',
-        () async {
-      // Create key pairs using the pure Dart implementation
-      final referenceImplementation = dartAlgorithm ?? keyExchangeAlgorithm;
-      final aliceKeyPair = await referenceImplementation.newKeyPair();
-      final alicePublicKey = await aliceKeyPair.extractPublicKey();
-      final bobKeyPair = await referenceImplementation.newKeyPair();
-      final bobPublicKey = await bobKeyPair.extractPublicKey();
+    test(
+      'sharedSecretKey(...): both parties compute the same secret',
+      () async {
+        // Create key pairs using the pure Dart implementation
+        final referenceImplementation = dartAlgorithm ?? keyExchangeAlgorithm;
+        final aliceKeyPair = await referenceImplementation.newKeyPair();
+        final alicePublicKey = await aliceKeyPair.extractPublicKey();
+        final bobKeyPair = await referenceImplementation.newKeyPair();
+        final bobPublicKey = await bobKeyPair.extractPublicKey();
 
-      // Compute secret using the platform implementation
-      final aliceSecret = await (await keyExchangeAlgorithm.sharedSecretKey(
-        keyPair: aliceKeyPair,
-        remotePublicKey: bobPublicKey,
-      ))
-          .extractBytes();
+        // Compute secret using the platform implementation
+        final aliceSecret = await (await keyExchangeAlgorithm.sharedSecretKey(
+          keyPair: aliceKeyPair,
+          remotePublicKey: bobPublicKey,
+        )).extractBytes();
 
-      final bobSecret = await (await keyExchangeAlgorithm.sharedSecretKey(
-        keyPair: bobKeyPair,
-        remotePublicKey: alicePublicKey,
-      ))
-          .extractBytes();
+        final bobSecret = await (await keyExchangeAlgorithm.sharedSecretKey(
+          keyPair: bobKeyPair,
+          remotePublicKey: alicePublicKey,
+        )).extractBytes();
 
-      if (keyExchangeAlgorithm is X25519) {
-        expect(aliceSecret, hasLength(32));
-        expect(bobSecret, hasLength(32));
-      }
+        if (keyExchangeAlgorithm is X25519) {
+          expect(aliceSecret, hasLength(32));
+          expect(bobSecret, hasLength(32));
+        }
 
-      expect(
-        aliceSecret,
-        bobSecret,
-        reason: 'Secrets are different',
-      );
-    });
+        expect(aliceSecret, bobSecret, reason: 'Secrets are different');
+      },
+    );
 
     otherTests?.call();
   });

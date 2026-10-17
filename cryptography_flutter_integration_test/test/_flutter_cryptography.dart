@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:cryptography_flutter_pro/cryptography_flutter_pro.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,20 +27,14 @@ Matcher _unlessBrowser(Matcher matcher) {
 void testFlutterCryptography() {
   group('Cryptography.instance behavior:', () {
     test('is FlutterCryptography', () {
-      expect(
-        Cryptography.instance,
-        _unlessBrowser(same(FlutterCryptography.defaultInstance)),
-      );
+      expect(Cryptography.instance, isA<FlutterCryptography>());
     });
 
     test('AesGcm()', () {
       final instance = AesGcm.with256bits();
       expect(
         instance,
-        _unlessBrowser(anyOf(
-          isA<FlutterAesGcm>(),
-          isA<BackgroundAesGcm>(),
-        )),
+        _unlessBrowser(anyOf(isA<FlutterAesGcm>(), isA<BackgroundAesGcm>())),
       );
     });
 
@@ -48,10 +42,7 @@ void testFlutterCryptography() {
       final instance = Chacha20.poly1305Aead();
       expect(
         instance,
-        _unlessBrowser(anyOf(
-          isA<FlutterChacha20>(),
-          isA<BackgroundChacha>(),
-        )),
+        _unlessBrowser(anyOf(isA<FlutterChacha20>(), isA<BackgroundChacha>())),
       );
     });
 
@@ -60,10 +51,7 @@ void testFlutterCryptography() {
         return;
       }
       final instance = Ecdh.p256(length: 32);
-      expect(
-        instance,
-        _unlessBrowser(isA<FlutterEcdh>()),
-      );
+      expect(instance, _unlessBrowser(isA<FlutterEcdh>()));
     });
 
     test('Ecdh.p384()', () {
@@ -71,10 +59,7 @@ void testFlutterCryptography() {
         return;
       }
       final instance = Ecdh.p384(length: 32);
-      expect(
-        instance,
-        _unlessBrowser(isA<FlutterEcdh>()),
-      );
+      expect(instance, _unlessBrowser(isA<FlutterEcdh>()));
     });
 
     test('Ecdsa.p256()', () {
@@ -82,10 +67,7 @@ void testFlutterCryptography() {
         return;
       }
       final instance = Ecdsa.p256(Sha256());
-      expect(
-        instance,
-        _unlessBrowser(isA<FlutterEcdsa>()),
-      );
+      expect(instance, _unlessBrowser(isA<FlutterEcdsa>()));
     });
 
     test('Ecdsa.p384()', () {
@@ -93,10 +75,7 @@ void testFlutterCryptography() {
         return;
       }
       final instance = Ecdsa.p384(Sha384());
-      expect(
-        instance,
-        _unlessBrowser(isA<FlutterEcdsa>()),
-      );
+      expect(instance, _unlessBrowser(isA<FlutterEcdsa>()));
     });
   });
 }

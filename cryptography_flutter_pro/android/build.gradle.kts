@@ -1,15 +1,15 @@
 group = "dev.dint.cryptography_flutter_pro"
-version = "1.0-SNAPSHOT"
+version = "0.1.1"
 
 buildscript {
-    val kotlinVersion = "2.4.10"
+    val kotlinVersion = "2.4.21"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:9.4.0")
+        classpath("com.android.tools.build:gradle:9.4.1")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
@@ -51,7 +51,6 @@ android {
     testOptions {
         unitTests {
             all {
-                it.useJUnitPlatform()
 
                 it.outputs.upToDateWhen { false }
 
@@ -71,8 +70,5 @@ kotlin {
 }
 
 dependencies {
-    implementation("androidx.security:security-crypto:1.1.0")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.mockito:mockito-core:5.0.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.4.21")
 }

@@ -1,7 +1,7 @@
 # Introduction
 
 If you are implementing a cryptographic algorithm that implements interfaces of
-[pub.dev/packages/cryptography](https://pub.dev/packages/cryptography), this package helps you test
+[pub.dev/packages/cryptography](https://pub.dev/packages/cryptography_pro), this package helps you test
 that:
 
 * Your implementation complies with the API specifications.
@@ -19,7 +19,7 @@ dev_dependencies:
 
 If you have something like:
 ```dart
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 
 class MyExample extends Cipher {
   // ...

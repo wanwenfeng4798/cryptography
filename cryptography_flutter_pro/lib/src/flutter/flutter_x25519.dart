@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/helpers.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/helpers.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../cryptography_flutter_pro.dart';
@@ -74,9 +74,9 @@ class FlutterX25519 extends DelegatingKeyExchangeAlgorithm
           'privateKey': asUint8List(privateKey),
           'publicKey': asUint8List(publicKey),
         });
-        return SecretKey(
-          result['sharedSecretKey'] as Uint8List,
-        );
+        final bytes = result['sharedSecretKey'] as Uint8List;
+        X25519.checkSharedSecretKeyBytes(bytes);
+        return SecretKey(bytes);
       }
     }
     return await fallback.sharedSecretKey(

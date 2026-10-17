@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// An optimized version of [package:cryptography](https://pub.dev/packages/cryptography).
+/// An optimized version of [package:cryptography_pro](https://pub.dev/packages/cryptography_pro).
 ///
 /// See [FlutterCryptography] for usage instructions.
 // ignore: unnecessary_library_name

@@ -14,7 +14,7 @@
 
 import 'dart:async';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -30,12 +30,12 @@ abstract class FlutterCipher
   /// The values were chosen experimentally by observing performance.
   static final CryptographyChannelPolicy defaultChannelPolicy =
       CryptographyChannelPolicy(
-    // Experimentally chosen value.
-    minLength: 2000,
+        // Experimentally chosen value.
+        minLength: 2000,
 
-    // A too high value causes crashes on Android.
-    maxLength: CryptographyChannelQueue.defaultInstance.maxConcurrentSize,
-  );
+        // A too high value causes crashes on Android.
+        maxLength: CryptographyChannelQueue.defaultInstance.maxConcurrentSize,
+      );
 
   @protected
   static Future<List<int>> decryptWithPlugin({
@@ -46,6 +46,7 @@ abstract class FlutterCipher
     required SecretBox secretBox,
     required SecretKey secretKey,
     required List<int> aad,
+    Uint8List? possibleBuffer,
   }) async {
     final secretKeyData = await secretKey.extractBytes();
     final secretKeyUint8List = asUint8List(secretKeyData);
@@ -102,20 +103,14 @@ abstract class FlutterCipher
       if (fallback == null) {
         rethrow;
       }
-      return fallback.decrypt(
-        secretBox,
-        secretKey: secretKey,
-        aad: aad,
-      );
+      return fallback.decrypt(secretBox, secretKey: secretKey, aad: aad);
     } on PlatformException catch (error) {
       switch (error.code) {
         case 'INCORRECT_MAC':
           throw SecretBoxAuthenticationError();
 
         case 'INCORRECT_PADDING':
-          throw SecretBoxPaddingError(
-            message: error.message,
-          );
+          throw SecretBoxPaddingError(message: error.message);
 
         default:
           rethrow;
@@ -147,6 +142,7 @@ abstract class FlutterCipher
     required SecretKey secretKey,
     required List<int>? nonce,
     required List<int> aad,
+    Uint8List? possibleBuffer,
   }) async {
     final secretKeyData = await secretKey.extractBytes();
     final secretKeyUint8List = asUint8List(secretKeyData);
@@ -205,6 +201,7 @@ abstract class FlutterCipher
         secretKey: secretKey,
         nonce: nonce,
         aad: aad,
+        possibleBuffer: possibleBuffer,
       );
     } finally {
       lock.unlock();
@@ -222,11 +219,7 @@ abstract class FlutterCipher
     }
 
     final macBytes = result['mac'] as Uint8List;
-    return SecretBox(
-      cipherText,
-      nonce: nonce,
-      mac: Mac(macBytes),
-    );
+    return SecretBox(cipherText, nonce: nonce, mac: Mac(macBytes));
   }
 }
 
@@ -252,6 +245,13 @@ mixin FlutterCipherMixin
     int keyStreamIndex = 0,
     Uint8List? possibleBuffer,
   }) {
+    if (keyStreamIndex != 0) {
+      throw ArgumentError.value(
+        keyStreamIndex,
+        'keyStreamIndex',
+        '$runtimeType does not support key stream offsets',
+      );
+    }
     if (!kIsWeb &&
         isSupportedPlatform &&
         FlutterCryptography.isPluginPresent &&
@@ -263,6 +263,7 @@ mixin FlutterCipherMixin
         secretBox: secretBox,
         secretKey: secretKey,
         aad: aad,
+        possibleBuffer: possibleBuffer,
       );
     }
 
@@ -275,6 +276,7 @@ mixin FlutterCipherMixin
       secretBox,
       secretKey: secretKey,
       aad: aad,
+      possibleBuffer: possibleBuffer,
     );
   }
 
@@ -307,6 +309,13 @@ mixin FlutterCipherMixin
     int keyStreamIndex = 0,
     Uint8List? possibleBuffer,
   }) {
+    if (keyStreamIndex != 0) {
+      throw ArgumentError.value(
+        keyStreamIndex,
+        'keyStreamIndex',
+        '$runtimeType does not support key stream offsets',
+      );
+    }
     if (!kIsWeb &&
         isSupportedPlatform &&
         FlutterCryptography.isPluginPresent &&
@@ -319,6 +328,7 @@ mixin FlutterCipherMixin
         secretKey: secretKey,
         nonce: nonce,
         aad: aad,
+        possibleBuffer: possibleBuffer,
       );
     }
 
@@ -332,6 +342,7 @@ mixin FlutterCipherMixin
       secretKey: secretKey,
       nonce: nonce,
       aad: aad,
+      possibleBuffer: possibleBuffer,
     );
   }
 

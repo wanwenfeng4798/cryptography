@@ -1,3 +1,19 @@
+## 0.1.1
+
+* Fix AEAD parameter validation, fallback buffer forwarding, channel queue
+  lifecycle/capacity checks, and retry of failed provider registrations.
+* Fix Android authenticated decryption, provider replies, and unsigned fixed-width
+  EC parameters. Add JVM and Flutter channel regression tests.
+* Consolidate iOS/macOS sources into the shared `darwin` directory with CocoaPods
+  and SwiftPM support.
+* Native Apple ECDSA explicitly supports SHA-256/P-256, SHA-384/P-384 and
+  SHA-512/P-521; other combinations require a compatible fallback. EC seed APIs
+  delegate to a supplied deterministic fallback or throw UnsupportedError.
+* Remove unreachable RSA acceleration branches while preserving compatibility
+  wrappers. Fix registration checks for HMAC/PBKDF2, including empty HMAC keys.
+* Add native CI tests on Android, iOS and macOS; keep performance benchmarks
+  separate from functional checks. Update dependencies and require Flutter 3.47.7.
+
 ## 0.1.0
 
 * Initial release of `cryptography_flutter_pro` (based on former `cryptography_flutter` 2.4.0).

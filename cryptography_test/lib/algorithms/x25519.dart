@@ -14,8 +14,8 @@
 
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
@@ -23,10 +23,7 @@ import '../hex.dart';
 import '../key_exchange.dart';
 
 void testX25519() {
-  testKeyExchangeAlgorithm(
-    builder: () => X25519(),
-    otherTests: _otherTests,
-  );
+  testKeyExchangeAlgorithm(builder: () => X25519(), otherTests: _otherTests);
 }
 
 void _otherTests() {
@@ -37,39 +34,44 @@ void _otherTests() {
     expect(algorithm.keyPairType.publicKeyLength, 32);
   });
 
-  test('1000 random key exchanges', () async {
-    final algorithm = X25519();
-    for (var i = 0; i < 1000; i++) {
-      // Bob and Alice choose a random key pairs
-      final aliceKeyPair = await algorithm.newKeyPair();
-      final alicePublicKey = await aliceKeyPair.extractPublicKey();
+  test(
+    '1000 random key exchanges',
+    () async {
+      final algorithm = X25519();
+      for (var i = 0; i < 1000; i++) {
+        // Bob and Alice choose a random key pairs
+        final aliceKeyPair = await algorithm.newKeyPair();
+        final alicePublicKey = await aliceKeyPair.extractPublicKey();
 
-      final bobKeyPair = await algorithm.newKeyPair();
-      final bobPublicKey = await bobKeyPair.extractPublicKey();
+        final bobKeyPair = await algorithm.newKeyPair();
+        final bobPublicKey = await bobKeyPair.extractPublicKey();
 
-      // Alice calculates secret
-      final aliceShared = await algorithm.sharedSecretKey(
-        keyPair: aliceKeyPair,
-        remotePublicKey: bobPublicKey,
-      );
-      final aliceSharedData = await aliceShared.extract();
+        // Alice calculates secret
+        final aliceShared = await algorithm.sharedSecretKey(
+          keyPair: aliceKeyPair,
+          remotePublicKey: bobPublicKey,
+        );
+        final aliceSharedData = await aliceShared.extract();
 
-      // Bob calculates secret
-      final bobShared = await algorithm.sharedSecretKey(
-        keyPair: bobKeyPair,
-        remotePublicKey: alicePublicKey,
-      );
-      final bobSharedData = await bobShared.extract();
+        // Bob calculates secret
+        final bobShared = await algorithm.sharedSecretKey(
+          keyPair: bobKeyPair,
+          remotePublicKey: alicePublicKey,
+        );
+        final bobSharedData = await bobShared.extract();
 
-      // The secrets must be the same
-      expect(
-        hexFromBytes(aliceSharedData.bytes),
-        hexFromBytes(bobSharedData.bytes),
-      );
-    }
+        // The secrets must be the same
+        expect(
+          hexFromBytes(aliceSharedData.bytes),
+          hexFromBytes(bobSharedData.bytes),
+        );
+      }
 
-    // This takes long time so skip the test in browsers.
-  }, testOn: 'vm', timeout: Timeout(const Duration(seconds: 120)));
+      // This takes long time so skip the test in browsers.
+    },
+    testOn: 'vm',
+    timeout: Timeout(const Duration(seconds: 120)),
+  );
 
   test('Test vectors from RFC 7748', () async {
     final algorithm = X25519();
@@ -103,42 +105,28 @@ void _otherTests() {
     );
     final aliceKeyPairData = await aliceKeyPair.extract();
     expect(aliceKeyPairData.type, KeyPairType.x25519);
-    expect(
-      aliceKeyPairData.bytes,
-      isNot(alicePrivateKeyBytes),
-    );
+    expect(aliceKeyPairData.bytes, isNot(alicePrivateKeyBytes));
     expect(
       aliceKeyPairData.bytes,
       DartX25519.modifiedPrivateKeyBytes(alicePrivateKeyBytes),
     );
     final alicePublicKey = await aliceKeyPair.extractPublicKey();
     expect(alicePublicKey.type, KeyPairType.x25519);
-    expect(
-      alicePublicKey.bytes,
-      alicePublicKeyBytes,
-    );
+    expect(alicePublicKey.bytes, alicePublicKeyBytes);
 
     // Test generating a key pair from seed (for Bob)
-    final bobKeyPair = await algorithm.newKeyPairFromSeed(
-      bobPrivateKeyBytes,
-    );
+    final bobKeyPair = await algorithm.newKeyPairFromSeed(bobPrivateKeyBytes);
     expect(
       await bobKeyPair.extractPrivateKeyBytes(),
       DartX25519.modifiedPrivateKeyBytes(bobPrivateKeyBytes),
     );
     final bobPublicKey = await bobKeyPair.extractPublicKey();
-    expect(
-      bobPublicKey.bytes,
-      bobPublicKeyBytes,
-    );
+    expect(bobPublicKey.bytes, bobPublicKeyBytes);
 
     // Test generating a shared secret (for Alice)
     expect(
       await algorithm
-          .sharedSecretKey(
-            keyPair: aliceKeyPair,
-            remotePublicKey: bobPublicKey,
-          )
+          .sharedSecretKey(keyPair: aliceKeyPair, remotePublicKey: bobPublicKey)
           .then((value) => value.extractBytes()),
       sharedSecretBytes,
     );
@@ -146,45 +134,45 @@ void _otherTests() {
     // Test generating a shared secret (for Bob)
     expect(
       await algorithm
-          .sharedSecretKey(
-            keyPair: bobKeyPair,
-            remotePublicKey: alicePublicKey,
-          )
+          .sharedSecretKey(keyPair: bobKeyPair, remotePublicKey: alicePublicKey)
           .then((value) => value.extractBytes()),
       sharedSecretBytes,
     );
   });
 
-  test('public key generation from seed with 10 000 cycles', () async {
-    final algorithm = X25519();
-    const n = 10000;
+  test(
+    'public key generation from seed with 10 000 cycles',
+    () async {
+      final algorithm = X25519();
+      const n = 10000;
 
-    // Initial secret key
-    List<int> input = Uint8List(32);
-    input[0] = 1;
+      // Initial secret key
+      List<int> input = Uint8List(32);
+      input[0] = 1;
 
-    // 10 000 times
-    for (var i = 0; i < n; i++) {
-      // Generate a public key
-      final keyPair = await algorithm.newKeyPairFromSeed(
-        input,
-      );
-      final publicKey = await keyPair.extractPublicKey();
+      // 10 000 times
+      for (var i = 0; i < n; i++) {
+        // Generate a public key
+        final keyPair = await algorithm.newKeyPairFromSeed(input);
+        final publicKey = await keyPair.extractPublicKey();
 
-      // Use the output as the next input
-      input = publicKey.bytes;
-    }
+        // Use the output as the next input
+        input = publicKey.bytes;
+      }
 
-    final expected = Uint8List.fromList([
-      // Calculated with another implementation.
-      138, 8, 200, 47, 95, 126, 210, 241,
-      240, 215, 22, 64, 139, 230, 175, 228,
-      225, 187, 38, 220, 231, 7, 114, 132,
-      215, 244, 136, 80, 47, 52, 92, 15,
-    ]);
+      final expected = Uint8List.fromList([
+        // Calculated with another implementation.
+        138, 8, 200, 47, 95, 126, 210, 241,
+        240, 215, 22, 64, 139, 230, 175, 228,
+        225, 187, 38, 220, 231, 7, 114, 132,
+        215, 244, 136, 80, 47, 52, 92, 15,
+      ]);
 
-    expect(input, equals(expected));
+      expect(input, equals(expected));
 
-    // This takes long time so skip the test in browsers.
-  }, testOn: 'vm', timeout: Timeout(const Duration(seconds: 120)));
+      // This takes long time so skip the test in browsers.
+    },
+    testOn: 'vm',
+    timeout: Timeout(const Duration(seconds: 120)),
+  );
 }

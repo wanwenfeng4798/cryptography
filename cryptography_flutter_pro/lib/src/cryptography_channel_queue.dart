@@ -20,72 +20,54 @@ import 'package:flutter/services.dart';
 
 import '_internal.dart';
 
+enum _CallState { fresh, waiting, held, released }
+
 class CryptographyChannelCall {
   final CryptographyChannelQueue _queue;
   final int _size;
-  Completer? _completer = Completer();
+  Completer<void>? _completer;
+  _CallState _state = _CallState.fresh;
 
-  CryptographyChannelCall(this._queue, this._size);
-
-  bool get isWaitingExpected {
-    final queue = _queue;
-    final currentTotalRequests = queue._totalRequests;
-    if (currentTotalRequests == 0) {
-      return false;
-    }
-    final size = _size;
-    return currentTotalRequests + 1 > queue.maxConcurrentRequests ||
-        _queue._totalSize + size > queue.maxConcurrentSize;
+  CryptographyChannelCall(this._queue, this._size) {
+    RangeError.checkNotNegative(_size, 'size');
   }
 
-  Future lock() async {
-    final queue = _queue;
-    final size = _size;
+  bool get isWaitingExpected =>
+      _queue._locks.isNotEmpty || !_queue._canAdmit(_size);
+
+  Future<void> lock() async {
+    if (_state != _CallState.fresh) {
+      throw StateError('A channel lock can only be acquired once');
+    }
     if (isWaitingExpected) {
-      final completer = Completer();
+      _state = _CallState.waiting;
+      final completer = Completer<void>();
       _completer = completer;
-      queue._locks.add(this);
+      _queue._locks.add(this);
       await completer.future;
     } else {
-      queue._totalRequests++;
-      queue._totalSize += size;
+      _admit();
     }
+  }
+
+  void _admit() {
+    _queue._totalRequests++;
+    _queue._totalSize += _size;
+    _state = _CallState.held;
   }
 
   void unlock() {
-    // Update total size
-    final queue = _queue;
-    var currentTotalSize = queue._totalSize - _size;
-    queue._totalSize = currentTotalSize;
-    assert(currentTotalSize >= 0);
-
-    // Update total requests
-    var currentTotalRequests = queue._totalRequests - 1;
-    queue._totalRequests = currentTotalRequests;
-    assert(currentTotalRequests >= 0);
-
-    // Try to handle waiting calls
-    while (queue._locks.isNotEmpty &&
-        currentTotalRequests < queue.maxConcurrentRequests) {
-      final call = queue._locks.first;
-      final size = call._size;
-      if (currentTotalRequests > 0 &&
-          currentTotalSize + size >= queue.maxConcurrentSize) {
-        // Need to wait more.
-        break;
-      }
-
-      // Increment total size
-      currentTotalSize += size;
-      queue._totalSize = currentTotalSize;
-
-      // Increment total requests
-      currentTotalRequests++;
-      assert(currentTotalRequests > 0);
-      queue._totalRequests = currentTotalRequests;
-
-      // Remove and complete ticket
-      queue._locks.removeFirst();
+    if (_state != _CallState.held) {
+      throw StateError('Only an acquired channel lock can be released');
+    }
+    _state = _CallState.released;
+    _queue._totalSize -= _size;
+    _queue._totalRequests--;
+    while (_queue._locks.isNotEmpty) {
+      final call = _queue._locks.first;
+      if (!_queue._canAdmit(call._size)) break;
+      _queue._locks.removeFirst();
+      call._admit();
       call._completer!.complete();
       call._completer = null;
     }
@@ -108,23 +90,24 @@ class CryptographyChannelQueue {
   /// Default queue for iOS and Mac OS X
   static final CryptographyChannelQueue _defaultInstanceForCupertino =
       CryptographyChannelQueue(
-    maxConcurrentRequests: 100,
+        maxConcurrentRequests: 100,
 
-    // 100MB
-    maxConcurrentSize: 100 * 1024 * 1024,
-  );
+        // 100MB
+        maxConcurrentSize: 100 * 1024 * 1024,
+      );
 
   /// Default queue for Android.
   static final CryptographyChannelQueue _defaultInstanceForAndroid =
       CryptographyChannelQueue(
-    maxConcurrentRequests: 100,
+        maxConcurrentRequests: 100,
 
-    // We observed crashes when this was too high (e.g. >50MB)
-    // 20MB should be ok.
-    maxConcurrentSize: 20 * 1024 * 1024,
-  );
+        // We observed crashes when this was too high (e.g. >50MB)
+        // 20MB should be ok.
+        maxConcurrentSize: 20 * 1024 * 1024,
+      );
 
-  /// Maximum total size of all concurrent requests.
+  /// Target maximum size of concurrent requests.
+  /// A single oversized request is admitted alone to prevent starvation.
   final int maxConcurrentSize;
 
   /// Maximum number of concurrent requests.
@@ -138,7 +121,27 @@ class CryptographyChannelQueue {
   CryptographyChannelQueue({
     required this.maxConcurrentSize,
     required this.maxConcurrentRequests,
-  });
+  }) {
+    if (maxConcurrentRequests <= 0) {
+      throw ArgumentError.value(
+        maxConcurrentRequests,
+        'maxConcurrentRequests',
+        'Must be positive',
+      );
+    }
+    if (maxConcurrentSize <= 0) {
+      throw ArgumentError.value(
+        maxConcurrentSize,
+        'maxConcurrentSize',
+        'Must be positive',
+      );
+    }
+  }
+
+  // An oversized request runs alone, so it cannot block the queue forever.
+  bool _canAdmit(int size) =>
+      _totalRequests < maxConcurrentRequests &&
+      (_totalRequests == 0 || _totalSize + size <= maxConcurrentSize);
 
   int get totalRequests => _totalRequests;
 

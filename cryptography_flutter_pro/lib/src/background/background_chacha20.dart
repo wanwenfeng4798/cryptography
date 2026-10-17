@@ -14,8 +14,8 @@
 
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../cryptography_flutter_pro.dart';
@@ -41,10 +41,10 @@ class BackgroundChacha extends Chacha20 with BackgroundCipherMixin {
   BackgroundChacha.poly1305Aead({
     CryptographyChannelPolicy? channelPolicy,
     super.random,
-  })  : channelPolicy = random != null
-            ? CryptographyChannelPolicy.never
-            : (channelPolicy ?? BackgroundCipher.defaultChannelPolicy),
-        super.constructor();
+  }) : channelPolicy = random != null
+           ? CryptographyChannelPolicy.never
+           : (channelPolicy ?? BackgroundCipher.defaultChannelPolicy),
+       super.constructor();
 
   @override
   MacAlgorithm get macAlgorithm => const DartChacha20Poly1305AeadMacAlgorithm();

@@ -21,8 +21,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
+import 'package:cryptography_pro/helpers.dart';
 
 /// A JWK ([RFC 7517](https://tools.ietf.org/html/rfc7517): "JSON Web Key")
 /// formatted cryptographic key.
@@ -30,8 +31,8 @@ import 'package:cryptography/dart.dart';
 /// ## Examples of JSON representation
 /// ### AES 128 bit key
 /// ```json
-/// final key = Jwt.fromJson({
-///   "kty": "OCT",
+/// final key = Jwk.fromJson({
+///   "kty": "oct",
 ///   "alg":"A128KW",
 ///   "k": "{BYTES_IN_BASE64URI}",
 /// });
@@ -39,7 +40,7 @@ import 'package:cryptography/dart.dart';
 ///
 /// ### Ed25519 private key
 /// ```json
-/// final key = Jwt.fromJson({
+/// final key = Jwk.fromJson({
 ///   "kty": "OKP",
 ///   "crv": "Ed25519",
 ///   "d": "{BYTES_IN_BASE64URI}",
@@ -49,7 +50,7 @@ import 'package:cryptography/dart.dart';
 ///
 /// ### P-256 private key
 /// ```json
-/// final key = Jwt.fromJson({
+/// final key = Jwk.fromJson({
 ///   "kty": "EC",
 ///   "crv": "P-256",
 ///   "d": "{BYTES_IN_BASE64URI}",
@@ -60,7 +61,7 @@ import 'package:cryptography/dart.dart';
 ///
 /// ## RSA private key
 /// ```json
-/// final key = Jwt.fromJson({
+/// final key = Jwk.fromJson({
 ///   "kty": "RSA",
 ///   "n": "{BYTES_IN_BASE64URI}",
 ///   "e": "{BYTES_IN_BASE64URI}",
@@ -75,7 +76,7 @@ class Jwk {
   /// Key type.
   ///
   /// Possible values:
-  ///   * "OCT" (Octet sequence)
+  ///   * "oct" (Octet sequence)
   ///   * "EC" (Elliptic Key)
   ///   * "OKP" (Octet Key Pair)
   ///   * "RSA" (RSA key)
@@ -116,7 +117,7 @@ class Jwk {
   final String? kid;
 
   /// Operations.
-  final String? keyOps;
+  final List<String>? keyOps;
 
   /// RSA modulus. This is public information.
   final List<int>? n;
@@ -137,7 +138,7 @@ class Jwk {
   final List<int>? x;
 
   /// X.509 Certificate Chain.
-  final List<int>? x5c;
+  final List<List<int>>? x5c;
 
   /// X.509 Certificate SHA-1 Thumbprint.
   final List<int>? x5t;
@@ -159,7 +160,7 @@ class Jwk {
     this.k,
     this.keyOps,
     this.kid,
-    this.kty,
+    String? kty,
     this.n,
     this.p,
     this.q,
@@ -170,41 +171,62 @@ class Jwk {
     this.x5t,
     this.x5u,
     this.y,
-  });
+  }) : kty = kty == 'OCT' ? 'oct' : kty;
 
   @override
-  int get hashCode =>
-      alg.hashCode ^
-      crv.hashCode ^
-      kid.hashCode ^
-      kty.hashCode ^
-      use.hashCode ^
-      Object.hashAll(x ?? const []) ^
-      Object.hashAll(y ?? const []);
+  int get hashCode => const DeepCollectionEquality().hash([
+    alg,
+    crv,
+    cty,
+    keyOps,
+    kid,
+    kty,
+    use,
+    x5u,
+    d,
+    dp,
+    dq,
+    e,
+    k,
+    n,
+    p,
+    q,
+    qi,
+    x,
+    x5t,
+    y,
+    x5c,
+  ]);
 
   @override
-  bool operator ==(other) =>
+  bool operator ==(Object other) =>
       other is Jwk &&
       alg == other.alg &&
       crv == other.crv &&
       cty == other.cty &&
-      d == other.d &&
-      dp == other.dp &&
-      dq == other.dq &&
-      e == other.e &&
-      keyOps == other.keyOps &&
+      const DeepCollectionEquality().equals(keyOps, other.keyOps) &&
       kid == other.kid &&
       kty == other.kty &&
-      n == other.n &&
-      p == other.p &&
-      q == other.q &&
-      qi == other.qi &&
       use == other.use &&
-      x == other.x &&
-      x5c == other.x5c &&
-      x5t == other.x5t &&
       x5u == other.x5u &&
-      y == other.y;
+      _bytesEqual(d, other.d) &&
+      _bytesEqual(dp, other.dp) &&
+      _bytesEqual(dq, other.dq) &&
+      _bytesEqual(e, other.e) &&
+      _bytesEqual(k, other.k) &&
+      _bytesEqual(n, other.n) &&
+      _bytesEqual(p, other.p) &&
+      _bytesEqual(q, other.q) &&
+      _bytesEqual(qi, other.qi) &&
+      _bytesEqual(x, other.x) &&
+      _bytesEqual(x5t, other.x5t) &&
+      _bytesEqual(y, other.y) &&
+      const DeepCollectionEquality().equals(x5c, other.x5c);
+
+  static bool _bytesEqual(List<int>? a, List<int>? b) {
+    if (a == null || b == null) return a == null && b == null;
+    return constantTimeBytesEquality.equals(a, b);
+  }
 
   /// Constructs [JwkBuilder] from this object.
   JwkBuilder toBuilder() {
@@ -217,6 +239,7 @@ class Jwk {
       ..dq = dq
       ..e = e
       ..k = k
+      ..keyOps = keyOps
       ..kid = kid
       ..kty = kty
       ..n = n
@@ -339,7 +362,7 @@ class Jwk {
     {
       final value = x5c;
       if (value != null) {
-        result['x5c'] = base64UriEncode(value);
+        result['x5c'] = value.map(base64.encode).toList();
       }
     }
     {
@@ -386,25 +409,17 @@ class Jwk {
       case 'OKP':
         if (crv == 'Ed25519') {
           final d = this.d!;
-          return _LazySimpleKeyPair(
-            d,
-            () async {
-              final keyPair = await Ed25519().newKeyPairFromSeed(d);
-              return await keyPair.extractPublicKey();
-            },
-            KeyPairType.ed25519,
-          );
+          return _LazySimpleKeyPair(d, () async {
+            final keyPair = await Ed25519().newKeyPairFromSeed(d);
+            return await keyPair.extractPublicKey();
+          }, KeyPairType.ed25519);
         }
         if (crv == 'X25519') {
           final d = this.d!;
-          return _LazySimpleKeyPair(
-            d,
-            () async {
-              final keyPair = await X25519().newKeyPairFromSeed(d);
-              return await keyPair.extractPublicKey();
-            },
-            KeyPairType.x25519,
-          );
+          return _LazySimpleKeyPair(d, () async {
+            final keyPair = await X25519().newKeyPairFromSeed(d);
+            return await keyPair.extractPublicKey();
+          }, KeyPairType.x25519);
         }
         throw StateError('Unsupported "crv": "$crv"');
 
@@ -469,10 +484,8 @@ class Jwk {
   /// Constructs a [SecretKey] from this [Jwk].
   SecretKey toSecretKey() {
     switch (kty) {
-      case 'OCT':
-        return SecretKey(
-          Uint8List.fromList(k ?? const <int>[]),
-        );
+      case 'oct':
+        return SecretKey(Uint8List.fromList(k ?? const <int>[]));
 
       default:
         throw StateError('Not a secret key (kty: $kty)');
@@ -494,6 +507,9 @@ class Jwk {
         case 'alg':
           builder.alg = value as String;
           break;
+        case 'cty':
+          builder.cty = value as String;
+          break;
         case 'crv':
           builder.crv = value as String;
           break;
@@ -513,13 +529,15 @@ class Jwk {
           builder.k = base64UriDecode(value as String);
           break;
         case 'key_ops':
-          builder.keyOps = value as String;
+          builder.keyOps = value is String
+              ? [value]
+              : (value as List).cast<String>();
           break;
         case 'kid':
           builder.kid = value as String;
           break;
         case 'kty':
-          builder.kty = value as String;
+          builder.kty = value == 'OCT' ? 'oct' : value as String;
           break;
         case 'n':
           builder.n = base64UriDecode(value as String);
@@ -540,7 +558,9 @@ class Jwk {
           builder.x = base64UriDecode(value as String);
           break;
         case 'x5c':
-          builder.x5c = base64UriDecode(value as String);
+          builder.x5c = value is String
+              ? [base64UriDecode(value)]
+              : (value as List).map((e) => base64.decode(e as String)).toList();
           break;
         case 'x5t':
           builder.x5t = base64UriDecode(value as String);
@@ -614,12 +634,7 @@ class Jwk {
         KeyPairType.p521: 'P-521',
       }[publicKey.type];
       if (crv != null) {
-        return Jwk(
-          kty: 'EC',
-          crv: crv,
-          x: publicKey.x,
-          y: publicKey.y,
-        );
+        return Jwk(kty: 'EC', crv: crv, x: publicKey.x, y: publicKey.y);
       }
     } else if (publicKey is SimplePublicKey) {
       final crv = const <KeyPairType, String>{
@@ -627,18 +642,10 @@ class Jwk {
         KeyPairType.x25519: 'X25519',
       }[publicKey.type];
       if (crv != null) {
-        return Jwk(
-          kty: 'OKP',
-          crv: crv,
-          x: publicKey.bytes,
-        );
+        return Jwk(kty: 'OKP', crv: crv, x: publicKey.bytes);
       }
     } else if (publicKey is RsaPublicKey) {
-      return Jwk(
-        kty: 'RSA',
-        e: publicKey.e,
-        n: publicKey.n,
-      );
+      return Jwk(kty: 'RSA', e: publicKey.e, n: publicKey.n);
     }
     throw ArgumentError.value(publicKey);
   }
@@ -650,27 +657,15 @@ class Jwk {
   }) async {
     final data = await secretKey.extract();
     if (cipher is AesCbc || cipher is AesCtr || cipher is AesGcm) {
-      return Jwk(
-        kty: 'OCT',
-        alg: 'A${data.bytes.length * 8}KW',
-        k: data.bytes,
-      );
+      return Jwk(kty: 'oct', alg: 'A${data.bytes.length * 8}KW', k: data.bytes);
     }
     if (cipher is Chacha20 &&
         cipher.macAlgorithm is DartChacha20Poly1305AeadMacAlgorithm) {
-      return Jwk(
-        kty: 'OCT',
-        alg: 'C20PKW',
-        k: data.bytes,
-      );
+      return Jwk(kty: 'oct', alg: 'C20PKW', k: data.bytes);
     }
     if (cipher is Xchacha20 &&
         cipher.macAlgorithm is DartChacha20Poly1305AeadMacAlgorithm) {
-      return Jwk(
-        kty: 'OCT',
-        alg: 'XC20KW',
-        k: data.bytes,
-      );
+      return Jwk(kty: 'oct', alg: 'XC20KW', k: data.bytes);
     }
     throw ArgumentError.value(cipher, 'cipher');
   }
@@ -681,8 +676,9 @@ class Jwk {
   }
 
   static List<int> base64UriDecode(String s) {
-    return const Base64Codec.urlSafe()
-        .decode(s + '=' * ((4 - s.length % 4) % 4));
+    return const Base64Codec.urlSafe().decode(
+      s + '=' * ((4 - s.length % 4) % 4),
+    );
   }
 
   static String base64UriEncode(List<int> bytes) {
@@ -700,7 +696,7 @@ class JwkBuilder {
   List<int>? dq;
   List<int>? e;
   List<int>? k;
-  String? keyOps;
+  List<String>? keyOps;
   String? kid;
   String? kty;
   List<int>? n;
@@ -709,7 +705,7 @@ class JwkBuilder {
   List<int>? qi;
   String? use;
   List<int>? x;
-  List<int>? x5c;
+  List<List<int>>? x5c;
   List<int>? x5t;
   String? x5u;
   List<int>? y;
@@ -756,9 +752,11 @@ class JwkSet {
 
   /// Parses JSON tree into a [JwkSet].
   factory JwkSet.fromJson(Map<String, Object?> json) {
-    return JwkSet((json['keys'] as List)
-        .map((e) => Jwk.fromJson(e as Map<String, Object?>))
-        .toList());
+    return JwkSet(
+      (json['keys'] as List)
+          .map((e) => Jwk.fromJson(e as Map<String, Object?>))
+          .toList(),
+    );
   }
 
   @override
@@ -780,11 +778,8 @@ class _LazySimpleKeyPair extends SimpleKeyPair {
   final KeyPairType type;
   Future<SimplePublicKey>? _publicKeyFuture;
 
-  _LazySimpleKeyPair(
-    this._bytes,
-    this._publicKeyFunction,
-    this.type,
-  ) : super.constructor();
+  _LazySimpleKeyPair(this._bytes, this._publicKeyFunction, this.type)
+    : super.constructor();
 
   @override
   Future<SimpleKeyPairData> extract() async {

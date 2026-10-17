@@ -20,7 +20,7 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 import 'package:typed_data/typed_buffers.dart';
@@ -101,10 +101,7 @@ void testCipher<T extends Cipher>({
       });
     } else {
       test('cipher.toSync() throws $UnsupportedError', () {
-        expect(
-          () => cipher.toSync(),
-          throwsUnsupportedError,
-        );
+        expect(() => cipher.toSync(), throwsUnsupportedError);
       });
     }
 
@@ -119,10 +116,7 @@ void testCipher<T extends Cipher>({
           );
 
           // Correct MAC works
-          await cipher.decrypt(
-            secretBox,
-            secretKey: secretKey,
-          );
+          await cipher.decrypt(secretBox, secretKey: secretKey);
 
           // Bad MAC doesn't
           final badMac = Mac(secretBox.mac.bytes.map((e) => 0xFF ^ e).toList());
@@ -132,13 +126,8 @@ void testCipher<T extends Cipher>({
             mac: badMac,
           );
           await expectLater(
-            () => cipher.decrypt(
-              badSecretBox,
-              secretKey: secretKey,
-            ),
-            throwsA(
-              isA<SecretBoxAuthenticationError>(),
-            ),
+            () => cipher.decrypt(badSecretBox, secretKey: secretKey),
+            throwsA(isA<SecretBoxAuthenticationError>()),
           );
         });
 
@@ -150,10 +139,7 @@ void testCipher<T extends Cipher>({
           );
 
           // Correct MAC works
-          await cipher.decryptString(
-            secretBox,
-            secretKey: secretKey,
-          );
+          await cipher.decryptString(secretBox, secretKey: secretKey);
 
           // Bad MAC doesn't
           final badMac = Mac(secretBox.mac.bytes.map((e) => 0xFF ^ e).toList());
@@ -163,13 +149,8 @@ void testCipher<T extends Cipher>({
             mac: badMac,
           );
           await expectLater(
-            () => cipher.decryptString(
-              badSecretBox,
-              secretKey: secretKey,
-            ),
-            throwsA(
-              isA<SecretBoxAuthenticationError>(),
-            ),
+            () => cipher.decryptString(badSecretBox, secretKey: secretKey),
+            throwsA(isA<SecretBoxAuthenticationError>()),
           );
         });
 
@@ -250,16 +231,11 @@ void testCipherExample({
       expect(decrypted, clearText);
     });
 
-    _testCipherWithChunks(
-      input: clearText,
-    );
+    _testCipherWithChunks(input: clearText);
   });
 }
 
-void _testCipherWithChunks({
-  List<int>? input,
-  List<int> aad = const [],
-}) {
+void _testCipherWithChunks({List<int>? input, List<int> aad = const []}) {
   if (input == null) {
     input = Uint8List(130);
     for (var i = 0; i < input.length; i++) {
@@ -275,9 +251,7 @@ void _testCipherWithChunks({
     }
   });
 
-  final secretKey = SecretKeyData(
-    Uint8List(cipher.secretKeyLength),
-  );
+  final secretKey = SecretKeyData(Uint8List(cipher.secretKeyLength));
   final nonce = Uint8List(cipher.nonceLength);
 
   test('encrypt()', () async {
@@ -388,14 +362,9 @@ void _testCipherWithChunks({
           nonce: nonce,
           aad: aad,
         );
+        cipherTextAgain.addAll(state.convertChunkSync(clearText));
         cipherTextAgain.addAll(
-          state.convertChunkSync(clearText),
-        );
-        cipherTextAgain.addAll(
-          await state.convert(
-            const [],
-            expectedMac: null,
-          ),
+          await state.convert(const [], expectedMac: null),
         );
 
         // Check that clear text bytes were not mutated.
@@ -456,23 +425,15 @@ void _testCipherWithChunks({
         aad: aad,
       );
       cipherText.addAll(
-        state.convertChunkSync(
-          Uint8List.view(clearText.buffer, 0, 0),
-        ),
+        state.convertChunkSync(Uint8List.view(clearText.buffer, 0, 0)),
       );
-      cipherText.addAll(await state.convert(
-        clearText,
-        expectedMac: null,
-      ));
+      cipherText.addAll(await state.convert(clearText, expectedMac: null));
 
       // Check that clear text bytes were not mutated.
       expect(clearText, clearTextCopy);
 
       // Is cipher text correct?
-      expect(
-        hexFromBytes(cipherText),
-        hexFromBytes(firstSecretBox.cipherText),
-      );
+      expect(hexFromBytes(cipherText), hexFromBytes(firstSecretBox.cipherText));
 
       // Is MAC correct?
       expect(
@@ -522,9 +483,7 @@ void _testCipherWithChunks({
         aad: aad,
       );
       cipherText.addAll(
-        state.convertChunkSync(
-          Uint8List.view(clearText.buffer, 0, 1),
-        ),
+        state.convertChunkSync(Uint8List.view(clearText.buffer, 0, 1)),
       );
       cipherText.addAll(
         await state.convert(
@@ -537,10 +496,7 @@ void _testCipherWithChunks({
       expect(clearText, clearTextCopy);
 
       // Is cipher text correct?
-      expect(
-        hexFromBytes(cipherText),
-        hexFromBytes(firstSecretBox.cipherText),
-      );
+      expect(hexFromBytes(cipherText), hexFromBytes(firstSecretBox.cipherText));
 
       // Is MAC correct?
       expect(
@@ -590,23 +546,20 @@ void _testCipherWithChunks({
         aad: aad,
       );
       cipherText.addAll(
-        state.convertChunkSync(
-          Uint8List.view(clearText.buffer, 0, 64),
+        state.convertChunkSync(Uint8List.view(clearText.buffer, 0, 64)),
+      );
+      cipherText.addAll(
+        await state.convert(
+          Uint8List.view(clearText.buffer, 64, clearText.length - 64),
+          expectedMac: null,
         ),
       );
-      cipherText.addAll(await state.convert(
-        Uint8List.view(clearText.buffer, 64, clearText.length - 64),
-        expectedMac: null,
-      ));
 
       // Check that clear text bytes were not mutated.
       expect(clearText, clearTextCopy);
 
       // Is cipher text correct?
-      expect(
-        hexFromBytes(cipherText),
-        hexFromBytes(firstSecretBox.cipherText),
-      );
+      expect(hexFromBytes(cipherText), hexFromBytes(firstSecretBox.cipherText));
 
       // Is MAC correct?
       expect(
@@ -657,16 +610,12 @@ void _testCipherWithChunks({
 
       // 1 byte
       cipherText.addAll(
-        state.convertChunkSync(
-          Uint8List.view(clearText.buffer, 0, 1),
-        ),
+        state.convertChunkSync(Uint8List.view(clearText.buffer, 0, 1)),
       );
 
       // 2 bytes
       cipherText.addAll(
-        state.convertChunkSync(
-          Uint8List.view(clearText.buffer, 1, 2),
-        ),
+        state.convertChunkSync(Uint8List.view(clearText.buffer, 1, 2)),
       );
 
       // The other bytes
@@ -681,10 +630,7 @@ void _testCipherWithChunks({
       expect(clearText, clearTextCopy);
 
       // Is cipher text correct?
-      expect(
-        hexFromBytes(cipherText),
-        hexFromBytes(firstSecretBox.cipherText),
-      );
+      expect(hexFromBytes(cipherText), hexFromBytes(firstSecretBox.cipherText));
 
       // Is MAC correct?
       expect(

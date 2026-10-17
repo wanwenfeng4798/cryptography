@@ -4,7 +4,7 @@
 # Overview
 
 This is a Flutter plugin that
-enables [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography)
+enables [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography_pro)
 to use native APIs of Android, iOS, and Mac OS X.
 
 Maintained by [terrier989](https://github.com/terrier989).
@@ -22,7 +22,7 @@ Licensed under the [Apache License 2.0](LICENSE).
 * __Easier to inspect__
   * If someone reverse engineers you application, it may be easier to inspect operating system calls
     than pure Dart implementations provided by
-    [package:cryptography](https://pub.dev/packages/cryptography).
+    [package:cryptography_pro](https://pub.dev/packages/cryptography_pro).
 
 ## General behavior
 
@@ -35,7 +35,7 @@ This package contains two kinds of classes:
   use operating system APIs in Android / iOS / Mac OS X. If the operating system does not support
   the algorithm, the background implementation (such as `BackgroundChacha20`) or a pure Dart
   implementation (such
-  as [DartChacha20](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartChacha20-class.html))
+  as [DartChacha20](https://pub.dev/documentation/cryptography_pro/latest/cryptography.dart/DartChacha20-class.html))
   when available.
 * Classes such
   as [BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundChacha20-class.html)
@@ -56,14 +56,14 @@ In _pubspec.yaml_:
 
 ```yaml
 dependencies:
-  cryptography: ^2.9.0
-  cryptography_flutter_pro: ^0.1.0
+  cryptography_pro: ^2.9.1
+  cryptography_flutter_pro: ^0.1.1
 ```
 
 That's it!
 
 For API documentation, read more
-at [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography).
+at [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography_pro).
 
 # Behavior by algorithm
 
@@ -72,7 +72,7 @@ at [pub.dev/packages/cryptography](https://pub.dev/packages/cryptography).
 [FlutterAesGcm](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterAesGcm-class.html)
 is used in Android, iOS, and Mac OS X.
 Our benchmarks have shown up to ~50 times better performance than
-[DartAesGcm](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartAesGcm-class.html)
+[DartAesGcm](https://pub.dev/documentation/cryptography_pro/latest/cryptography.dart/DartAesGcm-class.html)
 (the pure Dart implementation).
 
 [BackgroundAesGcm](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundAesGcm-class.html)
@@ -83,7 +83,7 @@ is used in Windows and Linux for inputs that are large enough.
 [FlutterChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/FlutterChacha20-class.html)
 is available for Android and Apple operating systems.
 Our benchmarks have shown up to ~50 times better performance than
-[DartChacha20](https://pub.dev/documentation/cryptography/latest/cryptography.dart/DartChacha20-class.html)
+[DartChacha20](https://pub.dev/documentation/cryptography_pro/latest/cryptography.dart/DartChacha20-class.html)
 (the pure Dart implementation).
 
 [BackgroundChacha20](https://pub.dev/documentation/cryptography_flutter_pro/latest/cryptography_flutter_pro/BackgroundChacha20-class.html)

@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
-import 'package:cryptography/dart.dart';
+import 'package:cryptography_pro/cryptography.dart';
+import 'package:cryptography_pro/dart.dart';
 
 import '../_flutter_cryptography_implementation.dart';
 import '../_internal.dart';
+import '../flutter_cryptography.dart';
 
-/// [Hmac] that uses platform APIs in iOS and Mac OS X.
+/// [Hmac] that uses platform APIs in Android when the plugin is registered.
 class FlutterHmac extends Hmac with PlatformCryptographicAlgorithm {
   @override
   final HashAlgorithm hashAlgorithm;
@@ -55,32 +56,32 @@ class FlutterHmac extends Hmac with PlatformCryptographicAlgorithm {
     List<int> nonce = const <int>[],
     List<int> aad = const <int>[],
   }) async {
+    if (aad.isNotEmpty) {
+      throw ArgumentError.value(aad, 'aad', 'HMAC does not support AAD');
+    }
     final hashName = _hashNameFor(hashAlgorithm);
-    if (hashName != null) {
-      final result = await invokeMethod(
-        'hmac',
-        {
-          'data': asUint8List(bytes),
-          'hash': hashName,
-          'key': asUint8List(await secretKey.extractBytes()),
-        },
-      );
+    final keyBytes = await secretKey.extractBytes();
+    // JCA SecretKeySpec rejects empty keys, although HMAC itself permits them.
+    if (hashName != null && keyBytes.isNotEmpty) {
+      final result = await invokeMethod('hmac', {
+        'data': asUint8List(bytes),
+        'hash': hashName,
+        'key': asUint8List(keyBytes),
+      });
       final macBytes = asUint8List(result['mac'] as List<int>);
       return Mac(macBytes);
     }
-    return await BrowserCryptography.defaultInstance
-        .hmac(hashAlgorithm)
-        .calculateMac(
-          bytes,
-          secretKey: secretKey,
-          nonce: nonce,
-          aad: aad,
-        );
+    return fallback.calculateMac(
+      bytes,
+      secretKey: secretKey,
+      nonce: nonce,
+      aad: aad,
+    );
   }
 
   static String? _hashNameFor(HashAlgorithm hashAlgorithm) {
     // Currently only Android supports HMAC.
-    if (isAndroid) {
+    if (FlutterCryptography.isPluginPresent && isAndroid) {
       if (hashAlgorithm is Sha1) {
         return 'SHA-1';
       }

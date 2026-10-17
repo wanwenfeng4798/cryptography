@@ -23,27 +23,26 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - cryptography
+          - cryptography_pro
           - cryptography_test
           - jwk
         sdk:
           # The oldest supported Dart SDK at the moment.
           # Feel free to bump it up whenever needed.
-          - 3.3.0
+          - 3.11.0
 
           # We want to support the latest beta SDK as well.
           - beta
     steps:
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@v1.8.1
         with:
           sdk: ${{ matrix.sdk }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
       - name: Get dependencies
         run: dart pub get
         working-directory: ./${{ matrix.package }}
       - name: Verify that code is formatted
-        continue-on-error: true
-        run: dart format --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
         working-directory: "./${{ matrix.package }}"
       - name: Analyze
         run: dart analyze
@@ -60,7 +59,7 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - cryptography
+          - cryptography_pro
           - cryptography_test
           - jwk
         compiler:
@@ -68,12 +67,12 @@ jobs:
           - dart2js
           - dart2wasm
     steps:
-      - uses: browser-actions/setup-chrome@v2
+      - uses: browser-actions/setup-chrome@v2.2.0
         if: ${{ matrix.compiler != 'vm' }}
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@v1.8.1
         with:
           sdk: beta
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
       - name: Get dependencies
         run: dart pub get
         working-directory: ./${{ matrix.package }}
@@ -101,11 +100,11 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - cryptography
+          - cryptography_pro
           - jwk
     steps:
-      - uses: dart-lang/setup-dart@v1
-      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.8.1
+      - uses: actions/checkout@v7.0.1
       - name: Get dependencies
         run: dart pub get
         working-directory: ./${{ matrix.package }}
@@ -135,7 +134,7 @@ jobs:
         sdk:
           # The oldest supported Dart SDK at the moment.
           # Feel free to bump it up whenever needed.
-          - 3.35.0
+          - 3.47.7
 
           # We want to support the latest beta SDK as well.
           - beta
@@ -146,21 +145,100 @@ jobs:
           git clone https://github.com/flutter/flutter.git --depth 1 -b ${{ matrix.sdk }} _flutter
           echo "$HOME/_flutter/bin" >> $GITHUB_PATH
           cd $GITHUB_WORKSPACE
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
       - name: Get dependencies
         run: flutter pub get
         working-directory: ./${{ matrix.package }}
       - name: Verify that code is formatted
-        continue-on-error: true
-        run: dart format --set-exit-if-changed .
+        run: dart format --output=none --set-exit-if-changed .
         working-directory: ./${{ matrix.package }}
       - name: Analyze
         run: flutter analyze
         working-directory: ./${{ matrix.package }}
 
-  #
-  # Unfortunately we don't have Flutter integration tests in Github Actions yet. :(
-  #
+  flutter_host_tests:
+    name: Flutter host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git --depth 1 -b 3.47.7 "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - run: flutter pub get && flutter test --reporter expanded
+        working-directory: cryptography_flutter_pro
+      - run: flutter pub get && flutter test --exclude-tags benchmark --reporter expanded
+        working-directory: cryptography_flutter_integration_test
+
+  flutter_native_tests:
+    name: Native tests (${{ matrix.platform }}, ${{ matrix.packaging }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: android
+            runner: ubuntu-latest
+            packaging: default
+          - platform: macos
+            runner: macos-latest
+            packaging: swiftpm
+          - platform: macos
+            runner: macos-latest
+            packaging: cocoapods
+          - platform: ios
+            runner: macos-latest
+            packaging: swiftpm
+          - platform: ios
+            runner: macos-latest
+            packaging: cocoapods
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git --depth 1 -b 3.47.7 "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Select CocoaPods compatibility path
+        if: matrix.packaging == 'cocoapods'
+        run: |
+          flutter config --no-enable-swift-package-manager
+          pod --version
+      - run: flutter pub get
+        working-directory: cryptography_flutter_integration_test
+      - name: Enable KVM
+        if: matrix.platform == 'android'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android native regression tests
+        if: matrix.platform == 'android'
+        uses: reactivecircus/android-emulator-runner@v2.38.0
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: cd cryptography_flutter_integration_test && flutter test integration_test/native_regression_test.dart -d emulator-5554
+      - name: Android JVM regression tests
+        if: matrix.platform == 'android'
+        working-directory: cryptography_flutter_integration_test/android
+        run: ./gradlew :cryptography_flutter_pro:testDebugUnitTest --console=plain
+      - name: macOS native regression tests
+        if: matrix.platform == 'macos'
+        working-directory: cryptography_flutter_integration_test
+        run: flutter test integration_test/native_regression_test.dart -d macos
+      - name: Boot iOS simulator
+        if: matrix.platform == 'ios'
+        run: |
+          device_id=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; print(next(d["udid"] for runtime,devices in json.load(sys.stdin)["devices"].items() if "iOS" in runtime for d in devices if d["name"].startswith("iPhone")))')
+          xcrun simctl boot "$device_id"
+          xcrun simctl bootstatus "$device_id" -b
+          echo "IOS_DEVICE_ID=$device_id" >> "$GITHUB_ENV"
+      - name: iOS native regression tests
+        if: matrix.platform == 'ios'
+        working-directory: cryptography_flutter_integration_test
+        run: flutter test integration_test/native_regression_test.dart -d "$IOS_DEVICE_ID"
 
   #
   # Flutter packages: PANA score
@@ -181,7 +259,7 @@ jobs:
           git clone https://github.com/flutter/flutter.git --depth 1 -b beta _flutter
           echo "$HOME/_flutter/bin" >> $GITHUB_PATH
           cd $GITHUB_WORKSPACE
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7.0.1
       - name: Get dependencies
         run: flutter pub get
         working-directory: ./${{ matrix.package }}

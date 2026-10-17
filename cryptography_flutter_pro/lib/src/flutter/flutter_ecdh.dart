@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:cryptography/cryptography.dart';
+import 'package:cryptography_pro/cryptography.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -38,24 +38,24 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
     this.length = 32,
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p256,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p256,
+       super.constructor();
 
   /// ECDH-P384
   FlutterEcdh.p384({
     this.length = 32,
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p384,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p384,
+       super.constructor();
 
   /// ECDH-P521
   FlutterEcdh.p521({
     this.length = 32,
     this.androidCryptoProvider,
     this.fallback,
-  })  : keyPairType = KeyPairType.p521,
-        super.constructor();
+  }) : keyPairType = KeyPairType.p521,
+       super.constructor();
 
   @override
   bool get isSupportedPlatform =>
@@ -77,29 +77,18 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
   @override
   Future<EcKeyPair> newKeyPair() async {
     if (isSupportedPlatform) {
-      final result = await invokeMethod(
-        'Ecdh.newKeyPair',
-        {
-          if (isAndroid) 'androidProvider': androidCryptoProvider,
-          'curve': _curveName,
-        },
-      );
+      final result = await invokeMethod('Ecdh.newKeyPair', {
+        if (isAndroid) 'androidProvider': androidCryptoProvider,
+        'curve': _curveName,
+      });
       final der = result['der'] as Uint8List?;
       if (der != null) {
-        return EcKeyPairData.parseDer(
-          der,
-          type: keyPairType,
-        );
+        return EcKeyPairData.parseDer(der, type: keyPairType);
       }
       final d = result['d'] as Uint8List;
       final x = result['x'] as Uint8List;
       final y = result['y'] as Uint8List;
-      return EcKeyPairData(
-        d: d,
-        x: x,
-        y: y,
-        type: keyPairType,
-      );
+      return EcKeyPairData(d: d, x: x, y: y, type: keyPairType);
     }
     final fallback = this.fallback;
     if (fallback == null) {
@@ -110,37 +99,13 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
 
   @override
   Future<EcKeyPair> newKeyPairFromSeed(List<int> seed) async {
-    if (isSupportedPlatform) {
-      final result = await invokeMethod(
-        'Ecdh.newKeyPair',
-        {
-          if (isAndroid) 'androidProvider': androidCryptoProvider,
-          'curve': _curveName,
-          'seed': asUint8List(seed),
-        },
-      );
-      final der = result['der'] as Uint8List?;
-      if (der != null) {
-        return EcKeyPairData.parseDer(
-          der,
-          type: keyPairType,
-        );
-      }
-      final d = result['d'] as Uint8List;
-      final x = result['x'] as Uint8List;
-      final y = result['y'] as Uint8List;
-      return EcKeyPairData(
-        d: d,
-        x: x,
-        y: y,
-        type: keyPairType,
-      );
-    }
     final fallback = this.fallback;
     if (fallback == null) {
-      throw UnsupportedError('Unsupported and no fallback implementation');
+      throw UnsupportedError(
+        'Platform ECDH does not support deterministic key generation',
+      );
     }
-    return await fallback.newKeyPair();
+    return fallback.newKeyPairFromSeed(seed);
   }
 
   @override
@@ -151,11 +116,7 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
     if (isSupportedPlatform) {
       final keyPairData = await keyPair.extract();
       if (keyPairData is! EcKeyPairData) {
-        throw ArgumentError.value(
-          keyPair,
-          'keyPair',
-          'Expected EcKeyPair',
-        );
+        throw ArgumentError.value(keyPair, 'keyPair', 'Expected EcKeyPair');
       }
       if (remotePublicKey is! EcPublicKey) {
         throw ArgumentError.value(
@@ -166,28 +127,22 @@ class FlutterEcdh extends Ecdh implements PlatformCryptographicAlgorithm {
       }
       Map result;
       if (isCupertino) {
-        result = await invokeMethod(
-          'Ecdh.sharedSecretKey',
-          {
-            if (isAndroid) 'androidProvider': androidCryptoProvider,
-            'curve': _curveName,
-            'localDer': keyPairData.toDer(),
-            'remoteDer': remotePublicKey.toDer(),
-          },
-        );
+        result = await invokeMethod('Ecdh.sharedSecretKey', {
+          if (isAndroid) 'androidProvider': androidCryptoProvider,
+          'curve': _curveName,
+          'localDer': keyPairData.toDer(),
+          'remoteDer': remotePublicKey.toDer(),
+        });
       } else {
-        result = await invokeMethod(
-          'Ecdh.sharedSecretKey',
-          {
-            if (isAndroid) 'androidProvider': androidCryptoProvider,
-            'curve': _curveName,
-            'localD': asUint8List(keyPairData.d),
-            'localX': asUint8List(keyPairData.x),
-            'localY': asUint8List(keyPairData.y),
-            'remoteX': asUint8List(remotePublicKey.x),
-            'remoteY': asUint8List(remotePublicKey.y),
-          },
-        );
+        result = await invokeMethod('Ecdh.sharedSecretKey', {
+          if (isAndroid) 'androidProvider': androidCryptoProvider,
+          'curve': _curveName,
+          'localD': asUint8List(keyPairData.d),
+          'localX': asUint8List(keyPairData.x),
+          'localY': asUint8List(keyPairData.y),
+          'remoteX': asUint8List(remotePublicKey.x),
+          'remoteY': asUint8List(remotePublicKey.y),
+        });
       }
       final error = result['error'];
       if (error != null) {
